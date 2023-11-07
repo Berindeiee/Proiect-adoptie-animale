@@ -1,16 +1,22 @@
-import { useState } from 'react'
-import './App.css'
-import { BrowserRouter as Router, Routes } from 'react-router-dom'
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import IntroPage from '../componente/pagini/IntroPage'; // Ensure this path is correct
+import { CssBaseline } from '@mui/material';
 
 function App() {
-  const [count, setCount] = useState(0)
+  console.log("Hello, world!");
 
   return (
-    <Router basename="/" navigator={{}}>
-      <Routes>
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<IntroPage />} />
+      
+        </Routes>
+      </Router>
+    </>
   );
 }
 
-export default App
+export default App;
