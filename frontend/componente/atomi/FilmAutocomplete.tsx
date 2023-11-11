@@ -2,6 +2,7 @@
 import Autocomplete from '@mui/material/Autocomplete';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
+import React from 'react';
 
 // Acesta este un exemplu de array. Înlocuiți cu datele reale.
 const top100Films = [
