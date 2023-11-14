@@ -15,6 +15,7 @@ const FilmAutocomplete = () => {
   return (
     <Autocomplete
       multiple
+      fullWidth
       id="tags-filled"
       options={top100Films.map((option) => option.title)}
       defaultValue={[top100Films[1].title]}
@@ -25,7 +26,7 @@ const FilmAutocomplete = () => {
         ))
       }
       renderInput={(params) => (
-        <TextField
+        <TextField 
             {...params}
             variant="filled"
             label="Filme"

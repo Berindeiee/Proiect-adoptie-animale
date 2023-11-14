@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import FilmAutocomplete from '../atomi/FilmAutocomplete';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -36,6 +37,7 @@ function NavBar() {
   };
 
   return (
+    <>
     <AppBar position="sticky">
       <Container maxWidth={false}>
         <Toolbar disableGutters>
@@ -125,6 +127,19 @@ function NavBar() {
             ))}
           </Box>
 
+          <Box sx={{ 
+              flexGrow: 1, 
+              display: { xs: 'none', md: 'flex' },
+              // Exemple de stiluri personalizate
+              backgroundColor: 'white', // schimbați culoarea de fundal
+              borderRadius: '4px', // rotunjirea colțurilor
+              padding: '5px', // adăugați un spațiu interior
+              maxWidth: '500px', // limitați lățimea maximă
+              minWidth: '300px', // limitați lățimea minimă
+            }}>
+            <FilmAutocomplete />
+          </Box>
+
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -157,6 +172,10 @@ function NavBar() {
         </Toolbar>
       </Container>
     </AppBar>
+    <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center' }}>
+    <FilmAutocomplete />
+  </Box>
+  </>
   );
 };
 export default NavBar;
