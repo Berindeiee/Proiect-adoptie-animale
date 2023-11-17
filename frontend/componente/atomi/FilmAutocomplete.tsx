@@ -29,8 +29,8 @@ const FilmAutocomplete = () => {
         <TextField 
             {...params}
             variant="filled"
-            label="Filme"
-            placeholder="Filme"
+            label="Search and filter"
+            placeholder="Search and filter"
             InputLabelProps={{contentEditable: false}}
         />
       )}

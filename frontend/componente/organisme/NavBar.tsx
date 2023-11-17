@@ -125,20 +125,24 @@ function NavBar() {
                 {page}
               </Button>
             ))}
-          </Box>
-
-          <Box sx={{ 
+            <Box sx={{ 
               flexGrow: 1, 
               display: { xs: 'none', md: 'flex' },
-              // Exemple de stiluri personalizate
               backgroundColor: 'white', // schimbați culoarea de fundal
-              borderRadius: '4px', // rotunjirea colțurilor
-              padding: '5px', // adăugați un spațiu interior
+              justifyContent: 'flex-start', // centrați conținutul
+              alignItems: 'center', // centrați conținutul
+              borderRadius: '7px', // rotunjirea colțurilor
               maxWidth: '500px', // limitați lățimea maximă
               minWidth: '300px', // limitați lățimea minimă
+              margin: '0 auto', // centrați conținutul
+              marginTop: '20px', // adaugă spațiu în partea de sus
+              marginBottom: '20px', // adaugă spațiu în partea de jos
             }}>
             <FilmAutocomplete />
           </Box>
+          </Box>
+
+          
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
