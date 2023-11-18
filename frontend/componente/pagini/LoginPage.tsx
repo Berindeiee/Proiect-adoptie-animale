@@ -1,6 +1,70 @@
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
 
-const LoginPage = () => {
+interface FormData {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+}
+
+const LoginPage: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    password: '',
+  });
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.fullName.trim()) {
+      setSnackbarMessage('Numele complet este necesar');
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      setSnackbarMessage('Numarul de telefon este necesar');
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setSnackbarMessage('Adresa de email nu este validă');
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      setSnackbarMessage('Parola trebuie să aibă cel puțin 6 caractere');
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (validateForm()) {
+      console.log('Formul trimis cu succes', formData);
+      // Logica de trimitere a datelor
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <div>
       <div id="stars"></div>
@@ -39,30 +103,57 @@ const LoginPage = () => {
 
                     {/* Sign Up Form */}
                     <div className="card-back">
-                      <div className="center-wrap">
-                        <div className="section text-center">
-                          <h4 className="mb-3 pb-3">Sign Up</h4>
-                          <div className="form-group">
-                            <input type="text" className="form-style" placeholder="Full Name"/>
-                            <i className="input-icon uil uil-user"></i>
-                          </div>
-                          <div className="form-group mt-2">
-                            <input type="tel" className="form-style" placeholder="Phone Number"/>
-                            <i className="input-icon uil uil-phone"></i>
-                          </div>
-                          <div className="form-group mt-2">
-                            <input type="email" className="form-style" placeholder="Email"/>
-                            <i className="input-icon uil uil-at"></i>
-                          </div>
-                          <div className="form-group mt-2">
-                            <input type="password" className="form-style" placeholder="Password"/>
-                            <i className="input-icon uil uil-lock-alt"></i>
-                          </div>
-                          <a href="https://www.web-leb.com/code" className="btn mt-4">Register</a>
-                        </div>
-                      </div>
-                    </div>
-
+        <div className="center-wrap">
+          <div className="section text-center">
+            <h4 className="mb-3 pb-3">Sign Up</h4>
+            <div className="form-group">
+              <input 
+                type="text" 
+                className="form-style" 
+                placeholder="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+              />
+              <i className="input-icon uil uil-user"></i>
+            </div>
+            <div className="form-group mt-2">
+              <input 
+                type="tel" 
+                className="form-style" 
+                placeholder="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+              />
+              <i className="input-icon uil uil-phone"></i>
+            </div>
+            <div className="form-group mt-2">
+              <input 
+                type="email" 
+                className="form-style" 
+                placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <i className="input-icon uil uil-at"></i>
+            </div>
+            <div className="form-group mt-2">
+              <input 
+                type="password" 
+                className="form-style" 
+                placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <i className="input-icon uil uil-lock-alt"></i>
+            </div>
+            <button onClick={handleSubmit} className="btn mt-4">Register</button>
+          </div>
+        </div>
+      </div>
                   </div>
                 </div>
               </div>
@@ -70,6 +161,21 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <MuiAlert 
+          onClose={handleCloseSnackbar} 
+          severity="error" 
+          elevation={6} 
+          variant="filled"
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 };
