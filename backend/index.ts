@@ -14,7 +14,8 @@ async function connectToDb() {
 async function saveUser(user: User) {
     const newUser = new User(user);
     await newUser.save();
-    
+    console.log('Utilizatorul a fost salvat');
+
 }
 
 Bun.serve({
