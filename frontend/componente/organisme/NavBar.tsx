@@ -184,7 +184,8 @@ function NavBar() {
         </Toolbar>
       </Container>
     </AppBar>
-    <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center' }}>
+    <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center',backgroundColor: 'white', // schimbați culoarea de fundal
+     }}>
     <FilmAutocomplete />
   </Box>
   </>
