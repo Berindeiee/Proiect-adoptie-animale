@@ -1,7 +1,8 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
+import { Anchor } from '@mui/icons-material';
 
 interface FormData {
   fullName: string;
@@ -11,14 +12,43 @@ interface FormData {
 }
 
 const LoginPage: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    fullName: '',
-    phoneNumber: '',
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState<FormData>({ fullName: '', phoneNumber: '', email: '', password: '' });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [ws, setWs] = useState<WebSocket | null>(null);
+
+  const connectWebSocket = () => {
+    // Verifică dacă există deja o conexiune deschisă sau în curs de deschidere
+    if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+      const socket = new WebSocket('ws://localhost:3000');
+  
+      socket.onopen = () => {
+        console.log('WebSocket Connected');
+        // Alte acțiuni necesare când conexiunea este deschisă
+      };
+  
+      socket.onclose = () => {
+        console.log('WebSocket Disconnected. Attempting to reconnect...');
+        setTimeout(connectWebSocket, 5000); // Încercare de reconectare după 3 secunde
+      };
+  
+      socket.onmessage = (event) => {
+        console.log('Mesaj primit de la server:', event.data);
+      };
+  
+      setWs(socket);
+    } else {
+      console.log('O conexiune WebSocket este deja deschisă sau în curs de deschidere');
+    }
+  };
+  
+
+  useEffect(() => {
+    connectWebSocket();
+    return () => {
+      ws?.close();
+    };
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,8 +86,15 @@ const LoginPage: React.FC = () => {
   const handleSubmit = (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Formul trimis cu succes', formData);
-      // Logica de trimitere a datelor
+      if (ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(formData));
+        console.log('Formul trimis', formData);
+      } else {
+        console.log('WebSocket not connected. Message not sent.');
+        setSnackbarMessage('Serverul nu reaspunde. Încearcă mai târziu.');
+        setSnackbarOpen(true);
+        return false;
+      }
     }
   };
 
@@ -166,6 +203,8 @@ const LoginPage: React.FC = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
+        className='snackbar'
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <MuiAlert 
           onClose={handleCloseSnackbar} 
