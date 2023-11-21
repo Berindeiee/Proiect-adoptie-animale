@@ -12,6 +12,8 @@ body{
 a:hover {
 	text-decoration: none;
 }
+
+
 .link {
   color: #ffeba7;
 }
@@ -54,6 +56,8 @@ display: none;
   cursor: pointer;
   background-color: #ffeba7;
 }
+
+
 .checkbox:checked + label:before,
 .checkbox:not(:checked) + label:before{
   position: absolute;
@@ -161,6 +165,29 @@ display: none;
   -webkit-transition: all 200ms linear;
    transition: all 200ms linear;
 }
+.show-password-icon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  cursor: pointer;
+  color: #c4c3ca; /* Sau orice culoare preferi */
+}
+
+/* Stilul pentru câmpul de parolă */
+.form-group .form-style.password-input {
+  padding-right: 20%; /* Ajustează procentul în funcție de nevoi */
+}
+
+/* Media query pentru ecrane mai mici */
+@media (max-width: 600px) {
+  .form-group .form-style.password-input {
+    padding-right: 20%; /* Ajustează procentul pentru ecrane mai mici */
+  }
+}
+
+
 .btn{  
   border-radius: 4px;
   height: 44px;

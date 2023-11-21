@@ -3,6 +3,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
 import { Anchor } from '@mui/icons-material';
+import { AlertColor } from '@mui/material/Alert';
 
 interface FormData {
   fullName: string;
@@ -15,33 +16,64 @@ const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ fullName: '', phoneNumber: '', email: '', password: '' });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
+  const [showPassword, setShowPassword] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const connectWebSocket = () => {
     // Verifică dacă există deja o conexiune deschisă sau în curs de deschidere
     if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
       const socket = new WebSocket('ws://localhost:3000');
-  
+
       socket.onopen = () => {
         console.log('WebSocket Connected');
         // Alte acțiuni necesare când conexiunea este deschisă
       };
-  
+
       socket.onclose = () => {
         console.log('WebSocket Disconnected. Attempting to reconnect...');
         setTimeout(connectWebSocket, 5000); // Încercare de reconectare după 3 secunde
       };
-  
+
       socket.onmessage = (event) => {
-        console.log('Mesaj primit de la server:', event.data);
+        const response = JSON.parse(event.data);
+
+        switch (response.type) {
+          case 'REGISTRATION_SUCCESS':
+            // Tratează succesul înregistrării
+            setFormData({ fullName: '', phoneNumber: '', email: '', password: '' }); // Resetare formular
+            console.log('reset');
+            setSnackbarMessage('Înregistrare realizată cu succes!');
+
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+
+
+            break;
+          case 'REGISTRATION_ERROR':
+            // Tratează eroarea de înregistrare
+            setSnackbarMessage(response.data); // Afișează mesajul de eroare primit
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            break;
+          case 'UNKNOWN_MESSAGE_TYPE':
+            setSnackbarMessage('Tip de mesaj necunoscut primit de la server');
+            setSnackbarSeverity('warning');
+            setSnackbarOpen(true);
+            break;
+        }
       };
-  
+
       setWs(socket);
     } else {
       console.log('O conexiune WebSocket este deja deschisă sau în curs de deschidere');
     }
   };
-  
+
 
   useEffect(() => {
     connectWebSocket();
@@ -87,7 +119,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     if (validateForm()) {
       if (ws?.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(formData));
+        ws.send(JSON.stringify({ type: 'REGISTER_USER', data: formData }));
         console.log('Formul trimis', formData);
       } else {
         console.log('WebSocket not connected. Message not sent.');
@@ -113,7 +145,7 @@ const LoginPage: React.FC = () => {
             <div className="col-12 text-center align-self-center py-5">
               <div className="section pb-5 pt-5 pt-sm-2 text-center">
                 <h6 className="mb-0 pb-3"><span>Log In </span><span>Sign Up</span></h6>
-                <input className="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
+                <input className="checkbox" type="checkbox" id="reg-log" name="reg-log" defaultChecked />
                 <label htmlFor="reg-log"></label>
                 <div className="card-3d-wrap mx-auto">
                   <div className="card-3d-wrapper">
@@ -123,11 +155,11 @@ const LoginPage: React.FC = () => {
                         <div className="section text-center">
                           <h4 className="mb-4 pb-3">Log In</h4>
                           <div className="form-group">
-                            <input type="email" className="form-style" placeholder="Email"/>
+                            <input type="email" className="form-style" placeholder="Email" />
                             <i className="input-icon uil uil-at"></i>
                           </div>
                           <div className="form-group mt-2">
-                            <input type="password" className="form-style" placeholder="Password"/>
+                            <input type="password" className="form-style" placeholder="Password" />
                             <i className="input-icon uil uil-lock-alt"></i>
                           </div>
                           <a href="https://www.web-leb.com/code" className="btn mt-4">Login</a>
@@ -140,57 +172,62 @@ const LoginPage: React.FC = () => {
 
                     {/* Sign Up Form */}
                     <div className="card-back">
-        <div className="center-wrap">
-          <div className="section text-center">
-            <h4 className="mb-3 pb-3">Sign Up</h4>
-            <div className="form-group">
-              <input 
-                type="text" 
-                className="form-style" 
-                placeholder="Full Name"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-              />
-              <i className="input-icon uil uil-user"></i>
-            </div>
-            <div className="form-group mt-2">
-              <input 
-                type="tel" 
-                className="form-style" 
-                placeholder="Phone Number"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-              <i className="input-icon uil uil-phone"></i>
-            </div>
-            <div className="form-group mt-2">
-              <input 
-                type="email" 
-                className="form-style" 
-                placeholder="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              <i className="input-icon uil uil-at"></i>
-            </div>
-            <div className="form-group mt-2">
-              <input 
-                type="password" 
-                className="form-style" 
-                placeholder="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              <i className="input-icon uil uil-lock-alt"></i>
-            </div>
-            <button onClick={handleSubmit} className="btn mt-4">Register</button>
-          </div>
-        </div>
-      </div>
+                      <div className="center-wrap">
+                        <div className="section text-center">
+                          <h4 className="mb-3 pb-3">Sign Up</h4>
+                          <div className="form-group">
+                            <input
+                              type="text"
+                              className="form-style"
+                              placeholder="Full Name"
+                              name="fullName"
+                              value={formData.fullName}
+                              onChange={handleChange}
+                            />
+                            <i className="input-icon uil uil-user"></i>
+                          </div>
+                          <div className="form-group mt-2">
+                            <input
+                              type="tel"
+                              className="form-style"
+                              placeholder="Phone Number"
+                              name="phoneNumber"
+                              value={formData.phoneNumber}
+                              onChange={handleChange}
+                            />
+                            <i className="input-icon uil uil-phone"></i>
+                          </div>
+                          <div className="form-group mt-2">
+                            <input
+                              type="email"
+                              className="form-style"
+                              placeholder="Email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleChange}
+                            />
+                            <i className="input-icon uil uil-at"></i>
+                          </div>
+                          <div className="form-group mt-2">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              className="form-style password-input" // Adaugă clasa nouă aici
+                              placeholder="Password"
+                              name="password"
+                              value={formData.password}
+                              onChange={handleChange}
+                            />
+                            <i className="input-icon uil uil-lock-alt"></i>
+                            <i
+                              onClick={toggleShowPassword}
+                              className={`show-password-icon ${showPassword ? "uil-eye-slash" : "uil-eye"}`}
+                            ></i>
+
+                          </div>
+                          <button onClick={handleSubmit} className="btn mt-4">Register</button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -206,10 +243,10 @@ const LoginPage: React.FC = () => {
         className='snackbar'
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <MuiAlert 
-          onClose={handleCloseSnackbar} 
-          severity="error" 
-          elevation={6} 
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} // Utilizează starea snackbarSeverity aici
+          elevation={6}
           variant="filled"
         >
           {snackbarMessage}
