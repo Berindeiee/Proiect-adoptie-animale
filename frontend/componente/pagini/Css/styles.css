@@ -175,15 +175,33 @@ display: none;
   color: #c4c3ca; /* Sau orice culoare preferi */
 }
 
+.input-icon-name {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  cursor:auto;
+}
+
+.input-icon-name.uil-check {
+  color: green;
+}
+
+.input-icon-name.uil-times {
+  color: red;
+}
+
+
 /* Stilul pentru câmpul de parolă */
-.form-group .form-style.password-input {
+.form-group .form-style.password-input .form-style {
   padding-right: 20%; /* Ajustează procentul în funcție de nevoi */
 }
 
 /* Media query pentru ecrane mai mici */
 @media (max-width: 600px) {
   .form-group .form-style.password-input {
-    padding-right: 20%; /* Ajustează procentul pentru ecrane mai mici */
+    padding-right: 30%; /* Ajustează procentul pentru ecrane mai mici */
   }
 }
 

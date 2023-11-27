@@ -2,7 +2,6 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
-import { Anchor } from '@mui/icons-material';
 import { AlertColor } from '@mui/material/Alert';
 
 interface FormData {
@@ -18,11 +17,22 @@ const LoginPage: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
   const [showPassword, setShowPassword] = useState(false);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [usernameAvailability, setUsernameAvailability] = useState<boolean | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  // Verificarea disponibilității numelui
+  const checkUsernameAvailability = (username: string) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'CHECK_USERNAME', data: username }));
+    }
+  };
+  
+
 
   const connectWebSocket = () => {
     // Verifică dacă există deja o conexiune deschisă sau în curs de deschidere
@@ -41,18 +51,15 @@ const LoginPage: React.FC = () => {
 
       socket.onmessage = (event) => {
         const response = JSON.parse(event.data);
-
+        console.log('Mesaj primit de la server:', response);
         switch (response.type) {
           case 'REGISTRATION_SUCCESS':
             // Tratează succesul înregistrării
             setFormData({ fullName: '', phoneNumber: '', email: '', password: '' }); // Resetare formular
             console.log('reset');
             setSnackbarMessage('Înregistrare realizată cu succes!');
-
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
-
-
             break;
           case 'REGISTRATION_ERROR':
             // Tratează eroarea de înregistrare
@@ -60,11 +67,15 @@ const LoginPage: React.FC = () => {
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
             break;
+          case 'USERNAME_AVAILABILITY':
+            setUsernameAvailability(response.isAvailable);
+            break;
           case 'UNKNOWN_MESSAGE_TYPE':
             setSnackbarMessage('Tip de mesaj necunoscut primit de la server');
             setSnackbarSeverity('warning');
             setSnackbarOpen(true);
             break;
+
         }
       };
 
@@ -82,9 +93,23 @@ const LoginPage: React.FC = () => {
     };
   }, []);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (name === 'fullName') {
+      if (value.length >= 3) {{
+        if (timer) {
+          clearTimeout(timer);
+        }
+        // Setează un nou temporizator pentru a evita verificarea numelui de utilizator la fiecare tastare
+        const newTimer = setTimeout(() => {
+          checkUsernameAvailability(value);
+        }, 700);
+        setTimer(newTimer);
+      }} else {
+        setUsernameAvailability(false);
+      }
+    }
   };
 
   const validateForm = (): boolean => {
@@ -185,6 +210,9 @@ const LoginPage: React.FC = () => {
                               onChange={handleChange}
                             />
                             <i className="input-icon uil uil-user"></i>
+                            {usernameAvailability !== null && (
+                              <i className={`input-icon-name ${usernameAvailability ? "uil-check" : "uil-times"}`}></i>
+                            )}
                           </div>
                           <div className="form-group mt-2">
                             <input

@@ -1,5 +1,5 @@
 import { User, IUser } from './schema/schema';
-import { saveUser } from './controller/userController';
+import { saveUser, checkUsernameAvailability } from './controller/userController';
 import Bun from 'bun';
 
 export function startWebSocketServer() {
@@ -19,12 +19,18 @@ export function startWebSocketServer() {
         try {
           const parsedMessage = JSON.parse(String(message));
       
-          // Verifică tipul mesajului
-          if (parsedMessage.type === 'REGISTER_USER') {
-            const result = await saveUser(parsedMessage.data as IUser);
-            ws.send(JSON.stringify({ type: result === 'Înregistrare reușită' ? 'REGISTRATION_SUCCESS' : 'REGISTRATION_ERROR', data: result }));
-          } else {
-            ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
+          switch (parsedMessage.type) {
+            case 'REGISTER_USER':
+              const result = await saveUser(parsedMessage.data as IUser);
+              ws.send(JSON.stringify({ type: result === 'Înregistrare reușită' ? 'REGISTRATION_SUCCESS' : 'REGISTRATION_ERROR', data: result }));
+              break;
+            case 'CHECK_USERNAME':
+              const isAvailable = await checkUsernameAvailability(parsedMessage.data);
+              console.log('Verificare disponibilitate nume de utilizator...'+isAvailable);
+              ws.send(JSON.stringify({ type: 'USERNAME_AVAILABILITY', isAvailable }));
+              break;
+            default:
+              ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
           }
         } catch (error) {
           console.error('Eroare la procesarea mesajului:', error);
@@ -34,7 +40,6 @@ export function startWebSocketServer() {
       close(ws, code, message) {
         console.log('Conexiune WebSocket închisă');
       },
-      // Alte event handlers dacă sunt necesare
     },
   });
 }

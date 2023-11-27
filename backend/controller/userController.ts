@@ -21,3 +21,12 @@ export async function saveUser(userData: IUser): Promise<string> {
   console.log('Utilizatorul a fost salvat');
   return 'Înregistrare reușită';
 }
+
+// Functia pentru verificarea disponibilității numelui de utilizator
+export async function checkUsernameAvailability(username: string): Promise<boolean> {
+  // Verifică dacă există deja un utilizator cu același nume
+  const existingUser = await User.findOne({ fullName: username });
+  //console.log('Verificare disponibilitate nume de utilizator...'+existingUser);
+  // Returnează true dacă nu există un utilizator cu acel nume, false în caz contrar
+  return !existingUser;
+}
