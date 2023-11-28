@@ -1,6 +1,14 @@
 import { User, IUser } from './schema/schema';
-import { saveUser, checkUsernameAvailability } from './controller/userController';
+import { saveUser, checkUsernameAvailability, loginUser } from './controller/userController';
 import Bun from 'bun';
+
+let connectionId = 0;
+let contor = 0;
+
+interface ExtendedWebSocket extends Bun.ServerWebSocket {
+  id: number;
+}
+
 
 export function startWebSocketServer() {
   Bun.serve({
@@ -13,12 +21,16 @@ export function startWebSocketServer() {
     },
     websocket: {
       open(ws) {
-        console.log('Conexiune WebSocket deschisă');
+        const extendedWs = ws as ExtendedWebSocket;
+        connectionId++;
+        contor++;
+        extendedWs.id = connectionId; // Asignează un ID unic fiecărei conexiuni
+        console.log(`Conexiune WebSocket deschisă. ID Conexiune: ${extendedWs.id}`);
       },
       async message(ws, message) {
         try {
           const parsedMessage = JSON.parse(String(message));
-      
+
           switch (parsedMessage.type) {
             case 'REGISTER_USER':
               const result = await saveUser(parsedMessage.data as IUser);
@@ -26,8 +38,18 @@ export function startWebSocketServer() {
               break;
             case 'CHECK_USERNAME':
               const isAvailable = await checkUsernameAvailability(parsedMessage.data);
-              console.log('Verificare disponibilitate nume de utilizator...'+isAvailable);
+              console.log('Verificare disponibilitate nume de utilizator...' + isAvailable);
               ws.send(JSON.stringify({ type: 'USERNAME_AVAILABILITY', isAvailable }));
+              break;
+            case 'LOGIN_USER':
+              const loginResult = await loginUser(parsedMessage.data.email, parsedMessage.data.password);
+              if (loginResult.user) {
+                console.log('Utilizatorul ' + loginResult.user.fullName + ' s-a logat');
+                ws.send(JSON.stringify({ type: 'LOGIN_SUCCESS', data: loginResult.message }));
+              } else {
+                console.log('Logare eșuată: ' + loginResult.message);
+                ws.send(JSON.stringify({ type: 'LOGIN_ERROR', data: loginResult.message }));
+              }
               break;
             default:
               ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
@@ -38,7 +60,9 @@ export function startWebSocketServer() {
         }
       },
       close(ws, code, message) {
-        console.log('Conexiune WebSocket închisă');
+        const extendedWs = ws as ExtendedWebSocket;
+        contor--;
+        console.log(`Conexiune WebSocket închisă. ID Conexiune: ${extendedWs.id}, numar conexiuni ramase: ${contor}`);
       },
     },
   });

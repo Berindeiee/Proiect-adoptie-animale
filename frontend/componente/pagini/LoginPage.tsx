@@ -3,6 +3,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
 import { AlertColor } from '@mui/material/Alert';
+import { useNavigate } from 'react-router-dom';
 
 interface FormData {
   fullName: string;
@@ -17,13 +18,24 @@ const LoginPage: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
   const [showPassword, setShowPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [usernameAvailability, setUsernameAvailability] = useState<boolean | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
 
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  const navigate = useNavigate();
+
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const toggleLoginPasswordVisibility = () => {
+    setShowLoginPassword(!showLoginPassword);
+  };
+
 
   // Verificarea disponibilității numelui
   const checkUsernameAvailability = (username: string) => {
@@ -31,7 +43,7 @@ const LoginPage: React.FC = () => {
       ws.send(JSON.stringify({ type: 'CHECK_USERNAME', data: username }));
     }
   };
-  
+
 
 
   const connectWebSocket = () => {
@@ -70,6 +82,22 @@ const LoginPage: React.FC = () => {
           case 'USERNAME_AVAILABILITY':
             setUsernameAvailability(response.isAvailable);
             break;
+          case 'LOGIN_SUCCESS':
+
+            localStorage.setItem('userData', JSON.stringify(response.data));
+            setSnackbarMessage('Autentificare realizată cu succes!');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+            // Redirecționează utilizatorul către pagina principală după 2 secunde
+            setTimeout(() => {
+              navigate('/');
+            }, 2000); // 2000 de milisecunde reprezintă 2 secunde
+            break;
+          case 'LOGIN_ERROR':
+            setSnackbarMessage(response.data);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            break;
           case 'UNKNOWN_MESSAGE_TYPE':
             setSnackbarMessage('Tip de mesaj necunoscut primit de la server');
             setSnackbarSeverity('warning');
@@ -93,20 +121,47 @@ const LoginPage: React.FC = () => {
     };
   }, []);
 
+  const handleLoginEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginEmail(e.target.value);
+  };
+
+  const handleLoginPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginPassword(e.target.value);
+  };
+
+  const validateLogin = () => {
+    if (!loginEmail || !/\S+@\S+\.\S+/.test(loginEmail)) {
+      setSnackbarMessage('Format email incorect!');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
+      return false;
+    }
+    if (!loginPassword) {
+      setSnackbarMessage('Câmmpul parolă este obligatoriu!');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
+      return false;
+    }
+    return true;
+  };
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     if (name === 'fullName') {
-      if (value.length >= 3) {{
-        if (timer) {
-          clearTimeout(timer);
+      if (value.length >= 3) {
+        {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          // Setează un nou temporizator pentru a evita verificarea numelui de utilizator la fiecare tastare
+          const newTimer = setTimeout(() => {
+            checkUsernameAvailability(value);
+          }, 700);
+          setTimer(newTimer);
         }
-        // Setează un nou temporizator pentru a evita verificarea numelui de utilizator la fiecare tastare
-        const newTimer = setTimeout(() => {
-          checkUsernameAvailability(value);
-        }, 700);
-        setTimer(newTimer);
-      }} else {
+      } else {
         setUsernameAvailability(false);
       }
     }
@@ -115,24 +170,28 @@ const LoginPage: React.FC = () => {
   const validateForm = (): boolean => {
     if (!formData.fullName.trim()) {
       setSnackbarMessage('Numele complet este necesar');
+      setSnackbarSeverity('warning');
       setSnackbarOpen(true);
       return false;
     }
 
     if (!formData.phoneNumber.trim()) {
       setSnackbarMessage('Numarul de telefon este necesar');
+      setSnackbarSeverity('warning');
       setSnackbarOpen(true);
       return false;
     }
 
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
       setSnackbarMessage('Adresa de email nu este validă');
+      setSnackbarSeverity('warning');
       setSnackbarOpen(true);
       return false;
     }
 
     if (formData.password.length < 6) {
       setSnackbarMessage('Parola trebuie să aibă cel puțin 6 caractere');
+      setSnackbarSeverity('warning');
       setSnackbarOpen(true);
       return false;
     }
@@ -149,11 +208,30 @@ const LoginPage: React.FC = () => {
       } else {
         console.log('WebSocket not connected. Message not sent.');
         setSnackbarMessage('Serverul nu reaspunde. Încearcă mai târziu.');
+        setSnackbarSeverity('warning');
         setSnackbarOpen(true);
         return false;
       }
     }
   };
+
+  const handleLoginSubmit = (e: FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!validateLogin()) {
+      return; // Oprirea funcției dacă validarea eșuează
+    }
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'LOGIN_USER', data: { email: loginEmail, password: loginPassword } }));
+    } else {
+      console.log('WebSocket not connected. Message not sent.');
+      setSnackbarMessage('Serverul nu reaspunde. Încearcă mai târziu.');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
+      return false;
+    }
+  };
+
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -180,14 +258,29 @@ const LoginPage: React.FC = () => {
                         <div className="section text-center">
                           <h4 className="mb-4 pb-3">Log In</h4>
                           <div className="form-group">
-                            <input type="email" className="form-style" placeholder="Email" />
+                            <input type="email"
+                              className="form-style"
+                              placeholder="Email"
+                              value={loginEmail}
+                              onChange={handleLoginEmailChange}
+                            />
                             <i className="input-icon uil uil-at"></i>
                           </div>
                           <div className="form-group mt-2">
-                            <input type="password" className="form-style" placeholder="Password" />
+                            <input
+                              type={showLoginPassword ? "text" : "password"}
+                              className="form-style password-input"
+                              placeholder="Password"
+                              value={loginPassword}
+                              onChange={handleLoginPasswordChange}
+                            />
                             <i className="input-icon uil uil-lock-alt"></i>
+                            <i
+                              onClick={toggleLoginPasswordVisibility}
+                              className={`show-password-icon ${showLoginPassword ? "uil-eye-slash" : "uil-eye"}`}
+                            ></i>
                           </div>
-                          <a href="https://www.web-leb.com/code" className="btn mt-4">Login</a>
+                          <button onClick={handleLoginSubmit} className="btn mt-4">Login</button>
                           <p className="mb-0 mt-4 text-center">
                             <a href="https://www.web-leb.com/code" className="link">Forgot your password?</a>
                           </p>
@@ -203,7 +296,7 @@ const LoginPage: React.FC = () => {
                           <div className="form-group">
                             <input
                               type="text"
-                              className="form-style"
+                              className="form-style name"
                               placeholder="Full Name"
                               name="fullName"
                               value={formData.fullName}

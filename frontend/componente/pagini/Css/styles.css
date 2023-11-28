@@ -194,13 +194,13 @@ display: none;
 
 
 /* Stilul pentru câmpul de parolă */
-.form-group .form-style.password-input .form-style {
+.form-group .form-style.password-input, .form-style.name{
   padding-right: 20%; /* Ajustează procentul în funcție de nevoi */
 }
 
 /* Media query pentru ecrane mai mici */
 @media (max-width: 600px) {
-  .form-group .form-style.password-input {
+  .form-group .form-style.password-input, .form-style.name{
     padding-right: 30%; /* Ajustează procentul pentru ecrane mai mici */
   }
 }

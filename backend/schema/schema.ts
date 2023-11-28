@@ -33,10 +33,15 @@ userSchema.pre('save', async function(next) {
   if (!user.isModified('password')) return next();
 
   // Aplică hashing-ul parolei folosind Bun și un salt de 10.
-  const hashedPassword = await bunHash(user.password, 10); // 10 este costul pentru salt.
+  const hashedPassword = await Bun.password.hash(user.password, { 
+    algorithm: 'argon2id', 
+    timeCost: 10 // 10 este costul pentru salt.
+  });
+  
   user.password = hashedPassword.toString(); // Actualizarea parolei cu versiunea hash-uită.
   next();
 });
+
 
 
 // Exportarea modelului User, care este utilizat pentru a interacționa cu colecția de 

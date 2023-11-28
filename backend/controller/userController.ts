@@ -30,3 +30,22 @@ export async function checkUsernameAvailability(username: string): Promise<boole
   // Returnează true dacă nu există un utilizator cu acel nume, false în caz contrar
   return !existingUser;
 }
+
+export async function loginUser(email: string, password: string): Promise<{ message: string, user?: IUser }> {
+  const user = await User.findOne({ email: email });
+  
+  if (!user) {
+    return { message: 'Emailul sau parola este incorectă.' };
+  }
+
+  const isMatch = await Bun.password.verify(password, user.password);
+  
+  if (!isMatch) {
+    return { message: 'Emailul sau parola este incorectă.' };
+  }
+
+  return { 
+    message: 'Logare reușită.',
+    user: user
+  };
+}
