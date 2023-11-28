@@ -46,19 +46,22 @@ const LoginPage: React.FC = () => {
 
 
 
-  const connectWebSocket = () => {
-    // Verifică dacă există deja o conexiune deschisă sau în curs de deschidere
-    if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
-      const socket = new WebSocket('ws://localhost:3000');
+  let socket: WebSocket | undefined;
 
-      socket.onopen = () => {
+  const connectWebSocket = (): void => {
+    if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
+      socket = new WebSocket('ws://localhost:3000');
+      socket.onopen = (): void => {
         console.log('WebSocket Connected');
-        // Alte acțiuni necesare când conexiunea este deschisă
       };
 
-      socket.onclose = () => {
+      socket.onclose = (): void => {
         console.log('WebSocket Disconnected. Attempting to reconnect...');
-        setTimeout(connectWebSocket, 5000); // Încercare de reconectare după 3 secunde
+        setTimeout(connectWebSocket, 10000); // Increased reconnecting delay to 10 seconds
+      };
+
+      socket.onerror = (event): void => {
+        console.log('WebSocket Error', event);
       };
 
       socket.onmessage = (event) => {
@@ -117,9 +120,12 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     connectWebSocket();
     return () => {
-      ws?.close();
+      setTimeout(() => {
+        ws?.close();
+      }, 100);
     };
   }, []);
+
 
   const handleLoginEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginEmail(e.target.value);
