@@ -9,7 +9,6 @@ const AddForm: React.FC = () => {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            // Setăm imaginea selectată
             setSelectedImage(e.target.files[0]);
         }
     };
@@ -38,7 +37,7 @@ const AddForm: React.FC = () => {
                     autoComplete="oraș"
                     autoFocus
                 />
-                <label> Imagine:  </label>
+                <label className='label-class'> Imagine: </label>
                 <Input
                     id="file-upload"
                     type="file"

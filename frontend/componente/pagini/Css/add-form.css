@@ -21,14 +21,16 @@ h1 {
     color: #333;
 }
 
-
-
 .upload-btn:hover {
     background-color: #115293;
 }
 
 .hidden {
     display: none;
+}
+
+.label-class{
+    margin-right: 20px;
 }
 
 .image-preview {
