@@ -15,7 +15,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import FilmAutocomplete from '../atomi/FilmAutocomplete';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Products', 'Pricing', 'Blog'];
+const pages = ['Anunțuri', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Login-register', 'Logout'];
 
 function NavBar() {
@@ -40,8 +40,11 @@ function NavBar() {
   }
 
   const handleNavigation = (path: string) => () => {
+    console.log(path);
     if (path === 'Login-register') {
       navigate("/login-register");
+    } else if (path === 'Anunțuri') {
+      navigate("/anunturi");
     } else {
       setAnchorElNav(null);
     }

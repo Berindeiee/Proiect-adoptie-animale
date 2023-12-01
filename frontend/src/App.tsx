@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import IntroPage from '../componente/pagini/IntroPage'; // Ensure this path is correct
 import { CssBaseline } from '@mui/material';
 import LoginPage from '../componente/pagini/LoginPage';
+import NewsPage from '../componente/pagini/NewsPage';
 
 function App() {
   console.log("Hello, world!");
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<IntroPage />} />
           <Route path="/login-register" element={<LoginPage/>} />
+          <Route path="/anunturi" element={<NewsPage/>}></Route>
         </Routes>
       </Router>
     </>

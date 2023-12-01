@@ -1,0 +1,94 @@
+/* @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700,800,900'); */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--beige);
+    background-color: white;
+    overflow: hidden;
+    height: 100vh;
+    background: none;
+}
+
+.add-button {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 16;
+    font-weight: 400px;
+    line-height: 21px;
+    word-wrap: break-word;
+    border: none;
+    background: none;
+    color: var(--brown);
+    border-bottom: 1px solid white;
+}
+
+.add-button:hover {
+    margin-top: 20px;
+    right: 20px;
+    left: auto;
+    text-align: center;
+    color: black;
+    font-size: 16;
+    font-weight: 400px;
+    line-height: 21px;
+    word-wrap: break-word;
+    border: none;
+    background: none;
+    color: var(--green);
+    border-bottom: 1px solid var(--green);
+}
+
+.box {
+    margin-top: 10px;
+    width: 343px;
+    height: 368px;
+    position: relative;
+    background: var(--beige2);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 2px var(--beige2) solid;
+}
+
+.title {
+    left: 24px;
+    top: 255px;
+    position: absolute;
+    color: black;
+    font-size: 20px;
+    font-weight: 600px;
+    line-height: 26px;
+    word-wrap: break-word;
+}
+
+.city {
+    left: 24px;
+    top: 293px;
+    position: absolute;
+    color: var(--brown);
+    font-size: 16px;
+    font-family: Inter;
+    font-weight: 400px;
+    line-height: 24px;
+    word-wrap: break-word;
+}
+
+.image {
+    width: 229px;
+    height: 211px;
+    left: 57px;
+    top: 16px;
+    position: absolute;
+}
+
+.button {
+    width: 126px;
+    height: 48px;
+    left: 190px;
+    top: 263px;
+    position: absolute;
+    background: var(--green);
+    border-radius: 4px;
+    overflow: hidden;
+}
