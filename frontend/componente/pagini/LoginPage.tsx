@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
@@ -22,6 +22,8 @@ const LoginPage: React.FC = () => {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [usernameAvailability, setUsernameAvailability] = useState<boolean | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const isDisconnectIntentionalRef = useRef(false);
+
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -56,8 +58,12 @@ const LoginPage: React.FC = () => {
       };
 
       socket.onclose = (): void => {
-        console.log('WebSocket Disconnected. Attempting to reconnect...');
-        setTimeout(connectWebSocket, 10000); // Increased reconnecting delay to 10 seconds
+        if (!isDisconnectIntentionalRef.current) {
+          console.log('WebSocket Disconnected. Attempting to reconnect...');
+          setTimeout(connectWebSocket, 10000);
+        } else {
+          console.log('WebSocket Disconnected Intentionally');
+        }
       };
 
       socket.onerror = (event): void => {
@@ -86,16 +92,23 @@ const LoginPage: React.FC = () => {
             setUsernameAvailability(response.isAvailable);
             break;
           case 'LOGIN_SUCCESS':
+            // Stocarea datelor utilizatorului în cookie-uri
 
-            localStorage.setItem('userData', JSON.stringify(response.data));
+            document.cookie = `userData=${encodeURIComponent(JSON.stringify(response.data.user))}; Secure; SameSite=Lax; path=/;max-age=7200`; // Expiră în 2 ore
+            document.cookie = `jwt=${encodeURIComponent(response.data.token)}; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=7200`;
+            isDisconnectIntentionalRef.current = true;
+            console.log(isDisconnectIntentionalRef.current);
             setSnackbarMessage('Autentificare realizată cu succes!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            console.log('Autentificare realizată cu succes!');
+            socket?.close();
             // Redirecționează utilizatorul către pagina principală după 2 secunde
             setTimeout(() => {
               navigate('/');
             }, 2000); // 2000 de milisecunde reprezintă 2 secunde
             break;
+
           case 'LOGIN_ERROR':
             setSnackbarMessage(response.data);
             setSnackbarSeverity('error');
@@ -120,9 +133,12 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     connectWebSocket();
     return () => {
+      isDisconnectIntentionalRef.current = true;// Marchează deconectarea ca fiind intenționată
+      console.log(isDisconnectIntentionalRef.current);
       setTimeout(() => {
         ws?.close();
       }, 100);
+      console.log('Componenta este acum demontată');
     };
   }, []);
 

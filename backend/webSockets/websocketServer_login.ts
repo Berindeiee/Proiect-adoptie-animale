@@ -1,5 +1,5 @@
-import { User, IUser } from './schema/schema';
-import { saveUser, checkUsernameAvailability, loginUser } from './controller/userController';
+import { User, IUser } from '../schema/schema';
+import { saveUser, checkUsernameAvailability, loginUser } from '../controller/userController';
 import Bun from 'bun';
 
 let connectionId = 0;
@@ -10,7 +10,7 @@ interface ExtendedWebSocket extends Bun.ServerWebSocket {
 }
 
 
-export function startWebSocketServer() {
+export function startWebSocketServer_login() {
   Bun.serve({
     port: 3000,
     fetch(req, server) {
@@ -25,7 +25,7 @@ export function startWebSocketServer() {
         connectionId++;
         contor++;
         extendedWs.id = connectionId; // Asignează un ID unic fiecărei conexiuni
-        console.log(`Conexiune WebSocket deschisă. ID Conexiune: ${extendedWs.id}`);
+        console.log(`Conexiune WebSocket deschisă. ID Conexiune: ${extendedWs.id}, numar conexiuni: ${contor}`);
       },
       async message(ws, message) {
         try {
@@ -45,7 +45,7 @@ export function startWebSocketServer() {
               const loginResult = await loginUser(parsedMessage.data.email, parsedMessage.data.password);
               if (loginResult.user) {
                 console.log('Utilizatorul ' + loginResult.user.fullName + ' s-a logat');
-                ws.send(JSON.stringify({ type: 'LOGIN_SUCCESS', data: loginResult.message }));
+                ws.send(JSON.stringify({ type: 'LOGIN_SUCCESS', data: loginResult }));
               } else {
                 console.log('Logare eșuată: ' + loginResult.message);
                 ws.send(JSON.stringify({ type: 'LOGIN_ERROR', data: loginResult.message }));

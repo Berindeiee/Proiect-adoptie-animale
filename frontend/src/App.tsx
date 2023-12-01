@@ -5,8 +5,6 @@ import { CssBaseline } from '@mui/material';
 import LoginPage from '../componente/pagini/LoginPage';
 
 function App() {
-  console.log("Hello, world!");
-
   return (
     <>
       <Router>
