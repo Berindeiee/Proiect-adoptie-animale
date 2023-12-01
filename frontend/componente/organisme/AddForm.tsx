@@ -2,7 +2,6 @@ import React from 'react';
 import { TextField, Button, Input } from '@mui/material';
 
 import '../pagini/Css/add-form.css'
-import { Label } from '@material-ui/icons';
 
 const AddForm: React.FC = () => {
 
@@ -16,7 +15,7 @@ const AddForm: React.FC = () => {
     };
 
     return (
-        <div className='container'>
+        <div className='ceva'>
             <h1>Adaugă un anunț</h1>
             <form noValidate>
                 <TextField className='field'
