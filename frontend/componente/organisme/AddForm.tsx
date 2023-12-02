@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Button, Input } from '@mui/material';
+import { TextField, Button, Input, TextareaAutosize } from '@mui/material';
 
 import '../pagini/Css/add-form.css'
 
@@ -27,7 +27,13 @@ const AddForm: React.FC = () => {
                     autoComplete="categorie"
                     autoFocus
                 />
-                <TextField
+                <TextareaAutosize className='desc'
+                    aria-label="sescriere" 
+                    placeholder="Descriere" 
+                    required
+                />
+
+                <TextField className='field'
                     variant="outlined"
                     margin="normal"
                     required
