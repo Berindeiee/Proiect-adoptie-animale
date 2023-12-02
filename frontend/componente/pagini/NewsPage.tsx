@@ -21,7 +21,8 @@ const NewsPage: React.FC = () => {
             {showForm && <AddForm />}
 
             <div className="box">
-                <div className="title">Dog</div>
+                <div className="title">Cățel</div>
+                <div className='description'>Descriere</div>
                 <div className="city">Timisoara</div>
                 <img className="image" src="image" />
                 <button className="button">Adoptă</button>
