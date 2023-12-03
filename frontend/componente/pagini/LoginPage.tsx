@@ -93,7 +93,7 @@ const LoginPage: React.FC = () => {
             break;
           case 'LOGIN_SUCCESS':
             // Stocarea datelor utilizatorului în cookie-uri
-
+            isDisconnectIntentionalRef.current = true;// Marchează deconectarea ca fiind intenționată
             document.cookie = `userData=${encodeURIComponent(JSON.stringify(response.data.user))}; path=/;max-age=7200`; // Expiră în 2 ore
             document.cookie = `jwt=${encodeURIComponent(response.data.token)}; Path=/; Max-Age=7200`;
             setSnackbarMessage('Autentificare realizată cu succes!');

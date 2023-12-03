@@ -4,11 +4,14 @@ import NavBar from '../organisme/NavBar'; // Presupunând că NavBar.tsx este î
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import useWebSocket from '../../src/useWebSocket';
+
+
 
 const IntroPage: React.FC = () => {
   return (
     <div>
-      <NavBar/>
+      <NavBar />
       <Container maxWidth="md">
         <Box my={4}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -24,4 +27,4 @@ const IntroPage: React.FC = () => {
   );
 };
 
-export default  IntroPage;
+export default IntroPage;

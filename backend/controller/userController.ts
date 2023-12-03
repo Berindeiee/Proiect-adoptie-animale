@@ -51,15 +51,24 @@ function generateToken(user: UserPayload): string {
 
 
 export async function loginUser(email: string, password: string): Promise<{ message: string, user?: IUser, token?: string }> {
+
   const user = await User.findOne({ email: email });
   if (!user) {
     return { message: 'Emailul sau parola este incorectă.' };
   }
 
-  const isMatch = await Bun.password.verify(password, user.password);
-  if (!isMatch) {
-    return { message: 'Emailul sau parola este incorectă.' };
+  try {
+    const isMatch = await Bun.password.verify(password, user.password);
+    if (!isMatch) {
+      return { message: 'Emailul sau parola este incorectă.' };
+    }
   }
+  catch (error) {
+    console.error('Eroare la verificarea parolei:', error);
+    return { message: 'Eroare la verificarea parolei.' };
+  
+  
+}
 
   // Generarea token-ului
   const token = generateToken({ id: user._id.toString(), email: user.email });

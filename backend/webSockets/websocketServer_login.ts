@@ -14,6 +14,7 @@ export function startWebSocketServer_login() {
   Bun.serve({
     port: 3000,
     fetch(req, server) {
+      console.log("Cerere de la client: ");
       if (server.upgrade(req)) {
         return; // Nu returna un răspuns pentru upgrade-ul reușit la WebSocket
       }

@@ -14,14 +14,16 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import FilmAutocomplete from '../atomi/FilmAutocomplete';
 import { useNavigate } from 'react-router-dom';
+import { useWebSocketContext } from '../WebSocketContext';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Login-register', 'Logout'];
 
-function NavBar() {
+const  NavBar=()=> {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const { intentionalDisconnect } = useWebSocketContext();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -39,9 +41,24 @@ function NavBar() {
     setAnchorElUser(null);
   }
 
+  const deleteAllCookies=()=> {
+    const cookies = document.cookie.split(";");
+  
+    for (let cookie of cookies) {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+    }
+  }
+  
+
   const handleNavigation = (path: string) => () => {
     if (path === 'Login-register') {
-      navigate("/login-register");
+      navigate("/");
+    } else if (path === 'Logout') {
+      deleteAllCookies();
+      intentionalDisconnect();
+      navigate("/");
     } else {
       setAnchorElNav(null);
     }

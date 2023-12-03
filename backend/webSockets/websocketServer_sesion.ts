@@ -1,4 +1,4 @@
-import { serve } from 'bun';
+import Bun  from 'bun';
 import { parse } from 'cookie';
 import { verify } from 'jsonwebtoken';
 import { User, IUser } from '../schema/schema';
@@ -19,10 +19,11 @@ function verifyToken(token: string): boolean {
 }
 
 export function swebsocketServer_sesion() {
-    serve({
+    Bun.serve({
         hostname:'localhost',
         port: 3001,
         fetch(req, server) {
+            //console.log(req.headers);
             if (req.headers.get('Upgrade') === 'websocket') {
                 const cookies = parse(req.headers.get('Cookie') || '');
                 const jwtToken = cookies.jwt;
@@ -30,6 +31,8 @@ export function swebsocketServer_sesion() {
                     if (server.upgrade(req)) {
                         return; // Successful upgrade
                     }
+                }else{
+                    return new Response("Upgrade failed, token lipsă sau invalid", { status: 401 });
                 }
             }
 
