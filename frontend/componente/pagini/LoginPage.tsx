@@ -94,10 +94,8 @@ const LoginPage: React.FC = () => {
           case 'LOGIN_SUCCESS':
             // Stocarea datelor utilizatorului în cookie-uri
 
-            document.cookie = `userData=${encodeURIComponent(JSON.stringify(response.data.user))}; Secure; SameSite=Lax; path=/;max-age=7200`; // Expiră în 2 ore
-            document.cookie = `jwt=${encodeURIComponent(response.data.token)}; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=7200`;
-            isDisconnectIntentionalRef.current = true;
-            console.log(isDisconnectIntentionalRef.current);
+            document.cookie = `userData=${encodeURIComponent(JSON.stringify(response.data.user))}; path=/;max-age=7200`; // Expiră în 2 ore
+            document.cookie = `jwt=${encodeURIComponent(response.data.token)}; Path=/; Max-Age=7200`;
             setSnackbarMessage('Autentificare realizată cu succes!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -105,7 +103,7 @@ const LoginPage: React.FC = () => {
             socket?.close();
             // Redirecționează utilizatorul către pagina principală după 2 secunde
             setTimeout(() => {
-              navigate('/');
+              navigate('/home-page');
             }, 2000); // 2000 de milisecunde reprezintă 2 secunde
             break;
 
@@ -133,11 +131,10 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     connectWebSocket();
     return () => {
-      isDisconnectIntentionalRef.current = true;// Marchează deconectarea ca fiind intenționată
-      console.log(isDisconnectIntentionalRef.current);
+      //isDisconnectIntentionalRef.current = true;// Marchează deconectarea ca fiind intenționată
       setTimeout(() => {
         ws?.close();
-      }, 100);
+      }, 10);
       console.log('Componenta este acum demontată');
     };
   }, []);

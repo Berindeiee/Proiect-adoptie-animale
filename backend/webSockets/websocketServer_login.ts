@@ -25,7 +25,7 @@ export function startWebSocketServer_login() {
         connectionId++;
         contor++;
         extendedWs.id = connectionId; // Asignează un ID unic fiecărei conexiuni
-        console.log(`Conexiune WebSocket deschisă. ID Conexiune: ${extendedWs.id}, numar conexiuni: ${contor}`);
+        console.log(`Conexiune WebSocket deschisă. ID Conexiune: ${extendedWs.id}L, numar conexiuni: ${contor}`);
       },
       async message(ws, message) {
         try {
@@ -62,7 +62,7 @@ export function startWebSocketServer_login() {
       close(ws, code, message) {
         const extendedWs = ws as ExtendedWebSocket;
         contor--;
-        console.log(`Conexiune WebSocket închisă. ID Conexiune: ${extendedWs.id}, numar conexiuni ramase: ${contor}`);
+        console.log(`Conexiune WebSocket închisă. ID Conexiune: ${extendedWs.id}L, numar conexiuni ramase: ${contor}`);
       },
     },
   });
