@@ -46,6 +46,7 @@ export function swebsocketServer_sesion() {
             },
             message(ws, message) {
                 // Implementează logica specifică aici
+                console.log(`Mesaj primit de la client: ${message}`);
             },
             // Add other handlers as needed (close, etc.)
             close(ws) {

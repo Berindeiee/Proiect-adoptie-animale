@@ -1,9 +1,9 @@
-import './App.css';
+// App.js
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import IntroPage from '../componente/pagini/IntroPage'; // Ensure this path is correct
-import { CssBaseline } from '@mui/material';
 import LoginPage from '../componente/pagini/LoginPage';
 import { WebSocketProvider } from '../componente/WebSocketContext';
+import { CssBaseline } from '@mui/material';
+import WebSocketRoutes from './WebSocketRoutes';
 
 function App() {
   return (
@@ -11,8 +11,8 @@ function App() {
       <Router>
         <CssBaseline />
         <Routes>
-          <Route path="/home-page" element={<WebSocketProvider><IntroPage /></WebSocketProvider>} />
           <Route path="/" element={<LoginPage />} />
+          <Route path="/*" element={<WebSocketProvider><WebSocketRoutes /></WebSocketProvider>} />
         </Routes>
       </Router>
     </>

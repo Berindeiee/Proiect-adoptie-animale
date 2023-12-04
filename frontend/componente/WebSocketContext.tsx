@@ -1,6 +1,4 @@
-// WebSocketContext.tsx
-
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import useWebSocket from '../src/useWebSocket'; // Actualizați calea către hook-ul dvs. useWebSocket
 
 // Definirea tipurilor pentru valorile contextului
@@ -14,12 +12,34 @@ const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
 // Provider component care înconjoară copiii în contextul WebSocket
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { socket, intentionalDisconnect } = useWebSocket();
-    return (
-        <WebSocketContext.Provider value={{ socket: socket.current, intentionalDisconnect }}>
-            {children}
-        </WebSocketContext.Provider>
-    );
+  const { socket, intentionalDisconnect, connectWebSocket } = useWebSocket();
+  const hasConnectedRef = useRef(false);
+  console.log('socket.current.readyState=' + socket.current?.readyState);
+  useEffect(() => {
+    // Funcția de curățare pentru useEffect
+    if (!hasConnectedRef.current) {
+      hasConnectedRef.current = true;
+      connectWebSocket();
+    }
+
+    console.log('Componenta WebSocketProvider a fost montată');
+    return () => {
+      // Închideți WebSocket-ul atunci când componenta este dezmontată
+
+      if (socket.current) {
+        intentionalDisconnect();
+      }
+      hasConnectedRef.current = false;
+    };
+
+  }, [connectWebSocket]);
+
+
+  return (
+    <WebSocketContext.Provider value={{ socket: socket.current, intentionalDisconnect }}>
+      {children}
+    </WebSocketContext.Provider>
+  );
 };
 
 // Hook personalizat pentru a folosi contextul WebSocket

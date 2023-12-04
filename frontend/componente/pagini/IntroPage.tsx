@@ -4,18 +4,16 @@ import NavBar from '../organisme/NavBar'; // Presupunând că NavBar.tsx este î
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import useWebSocket from '../../src/useWebSocket';
-
-
 
 const IntroPage: React.FC = () => {
+ 
   return (
     <div>
       <NavBar />
       <Container maxWidth="md">
         <Box my={4}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Bine ai venit pe pagina de introducere!
+            Bine ai venit pe pagina de introducre!
           </Typography>
           <Typography variant="body1">
             Acesta este un exemplu simplu de pagină de introducere care folosește Material-UI și React.

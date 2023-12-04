@@ -48,29 +48,29 @@ const LoginPage: React.FC = () => {
 
 
 
-  let socket: WebSocket | undefined;
+  const socket = useRef<WebSocket | null>(null);
 
   const connectWebSocket = (): void => {
-    if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
-      socket = new WebSocket('ws://localhost:3000');
-      socket.onopen = (): void => {
+    if (!socket.current || socket.current.readyState === WebSocket.CLOSED || socket.current.readyState === WebSocket.CLOSING) {
+      socket.current = new WebSocket('ws://localhost:3000');
+      socket.current.onopen = (): void => {
         console.log('WebSocket Connected');
       };
 
-      socket.onclose = (): void => {
+      socket.current.onclose = (): void => {
         if (!isDisconnectIntentionalRef.current) {
           console.log('WebSocket Disconnected. Attempting to reconnect...');
-          setTimeout(connectWebSocket, 10000);
+          setTimeout(connectWebSocket, 3000);
         } else {
           console.log('WebSocket Disconnected Intentionally');
         }
       };
 
-      socket.onerror = (event): void => {
+      socket.current.onerror = (event): void => {
         console.log('WebSocket Error', event);
       };
 
-      socket.onmessage = (event) => {
+      socket.current.onmessage = (event) => {
         const response = JSON.parse(event.data);
         console.log('Mesaj primit de la server:', response);
         switch (response.type) {
@@ -100,7 +100,7 @@ const LoginPage: React.FC = () => {
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
             console.log('Autentificare realizată cu succes!');
-            socket?.close();
+            socket.current?.close();
             // Redirecționează utilizatorul către pagina principală după 2 secunde
             setTimeout(() => {
               navigate('/home-page');
@@ -121,7 +121,7 @@ const LoginPage: React.FC = () => {
         }
       };
 
-      setWs(socket);
+      setWs(socket.current);
     } else {
       console.log('O conexiune WebSocket este deja deschisă sau în curs de deschidere');
     }
@@ -130,14 +130,15 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     connectWebSocket();
+    // Funcția de curățare care se va executa la demontarea componentei
     return () => {
-      //isDisconnectIntentionalRef.current = true;// Marchează deconectarea ca fiind intenționată
-      setTimeout(() => {
-        ws?.close();
-      }, 10);
-      console.log('Componenta este acum demontată');
+      if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+        isDisconnectIntentionalRef.current = true; // Marchează deconectarea ca fiind intenționată
+        socket.current.close(); // Închide conexiunea WebSocket
+      }
     };
   }, []);
+  
 
 
   const handleLoginEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,7 +246,7 @@ const LoginPage: React.FC = () => {
     } else {
       console.log('WebSocket not connected. Message not sent.');
       setSnackbarMessage('Serverul nu reaspunde. Încearcă mai târziu.');
-      setSnackbarSeverity('warning');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return false;
     }
@@ -301,7 +302,7 @@ const LoginPage: React.FC = () => {
                           </div>
                           <button onClick={handleLoginSubmit} className="btn mt-4">Login</button>
                           <p className="mb-0 mt-4 text-center">
-                            <a href="https://www.web-leb.com/code" className="link">Forgot your password?</a>
+                            <a href="h" className="link">Forgot your password?</a>
                           </p>
                         </div>
                       </div>
