@@ -3,11 +3,6 @@ import '../pagini/Css/textTitlu.scss';
 const TextTitlu = () => {
     return (
         <>
-            <head>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Play&display=swap');
-                </style>
-            </head>
             <div className="wrapper ten">
                 <div>
                     <h3 className="bounce">

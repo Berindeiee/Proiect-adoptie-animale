@@ -1,4 +1,4 @@
-import React from 'react';
+
 import '../pagini/Css/dog.scss';
 
 const Dog = () => {
