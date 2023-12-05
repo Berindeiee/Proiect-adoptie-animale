@@ -1,0 +1,68 @@
+@use "sass:math";
+$durata-totala-animatie: 7.7s;
+$duratie: math.div($durata-totala-animatie, 7);
+
+.wrapper.ten {}
+
+.bounce {
+    font-size: 3rem;
+    width: 100%;
+    margin: 0,1rem ;
+    display: inline-flex;
+    justify-content: center;
+    -webkit-box-reflect: below -20px linear-gradient(transparent, #211e1e2e);
+}
+
+@media (max-width: 900px) {
+    .bounce {
+      font-size: 1rem; // Dimensiune mai mică a fontului pentru ecrane mici
+    }
+  }
+
+.bounce span {
+    display: inline-flex;
+    color: #da480f;
+    font-family: "Play", sans-serif;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    50%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-20px);
+    }
+}
+
+.ten span:nth-of-type(1) {
+    animation-delay: 1*$duratie;
+}
+
+.ten span:nth-of-type(2) {
+    animation-delay: 2*$duratie;
+}
+
+.ten span:nth-of-type(3) {
+    animation-delay: 3*$duratie;
+}
+
+.ten span:nth-of-type(4) {
+    animation-delay: 4*$duratie;
+}
+
+.ten span:nth-of-type(5) {
+    animation-delay: 5*$duratie;
+}
+
+.ten span:nth-of-type(6) {
+    animation-delay:  6*$duratie;
+}
+
+.ten span:nth-of-type(7) {
+    animation-delay:  7*$duratie;
+}

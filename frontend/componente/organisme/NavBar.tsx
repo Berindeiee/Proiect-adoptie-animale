@@ -62,7 +62,7 @@ const  NavBar=()=> {
     } else {
       setAnchorElNav(null);
     }
-    setAnchorElUser(null); // Probabil dorești să închizi și acest meniu
+    setAnchorElUser(null); 
   };
 
   return (

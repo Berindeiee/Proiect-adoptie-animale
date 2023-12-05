@@ -4,9 +4,15 @@ import NavBar from '../organisme/NavBar'; // Presupunând că NavBar.tsx este î
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import {useWebSocketContext } from '../WebSocketContext';
 
 const IntroPage: React.FC = () => {
- 
+  const { socket } = useWebSocketContext();
+  if (socket) {
+    socket.onmessage = (event) => {
+      console.log(event.data);
+    };
+  }
   return (
     <div>
       <NavBar />

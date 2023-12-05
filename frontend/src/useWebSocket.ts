@@ -44,8 +44,6 @@ const useWebSocket = () => {
 
   // Deconectează WebSocket-ul intenționat
   const intentionalDisconnect = useCallback(() => {
-    
-    
     if (socket.current && socket.current.readyState === WebSocket.OPEN) {
       //console.log("isDisconnectIntentionalRef.current = true")
       isDisconnectIntentionalRef.current = true;

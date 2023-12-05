@@ -17,7 +17,7 @@ function verifyToken(token: string): boolean {
         return false;
     }
 }
-
+const intervalMap = new Map();
 export function swebsocketServer_sesion() {
     Bun.serve({
         hostname:'localhost',
@@ -43,6 +43,16 @@ export function swebsocketServer_sesion() {
                 connectionId++;
                 contor++;
                 console.log(`Conexiune sesion WebSocket deschisă. ID Conexiune: ${connectionId}S, numar conexiuni: ${contor}`);
+
+                // Setează un timer pentru a trimite un mesaj la fiecare 5 secunde
+                const intervalId = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ message: "Mesaj periodic de la server" }));
+                    }
+                }, 5000);
+
+                // Salvează intervalId în WebSocket pentru a putea fi oprit la închidere
+                intervalMap.set(ws, intervalId);
             },
             message(ws, message) {
                 // Implementează logica specifică aici
@@ -50,6 +60,13 @@ export function swebsocketServer_sesion() {
             },
             // Add other handlers as needed (close, etc.)
             close(ws) {
+                // Oprește timer-ul asociat cu acest ws
+                const intervalId = intervalMap.get(ws);
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalMap.delete(ws);
+                }
+
                 contor--;
                 console.log(`Conexiune sesion WebSocket închisă. ID Conexiune: ${connectionId}S, numar conexiuni: ${contor}`);
             }
