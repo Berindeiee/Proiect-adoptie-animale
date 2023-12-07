@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from '../WebSocketContext';
 
 const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Login-register', 'Logout'];
+const settings = ['Profile', 'Account', 'Adaugă Anunț', 'Login-register', 'Logout'];
 
 const  NavBar=()=> {
   const navigate = useNavigate();
@@ -41,12 +41,12 @@ const  NavBar=()=> {
     setAnchorElUser(null);
   }
 
-  const deleteAllCookies=()=> {
+  const deleteAllCookies = () => {
     const cookies = document.cookie.split(";");
-  
+
     for (let cookie of cookies) {
       const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      const name = eqPos > -1 ? cookie.slice(0, eqPos) : cookie;
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
     }
   }
@@ -59,7 +59,10 @@ const  NavBar=()=> {
       deleteAllCookies();
       intentionalDisconnect();
       navigate("/");
-    } else {
+    } else if (path === 'Adaugă Anunț') {
+      navigate("/add");
+    } 
+    else {
       setAnchorElNav(null);
     }
     setAnchorElUser(null); 

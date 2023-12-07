@@ -8,8 +8,7 @@ const WebSocketRoutes = () => {
         <Routes>
             <Route path="/home-page" element={<IntroPage />} />
             <Route path="/home" element={<IntroPage />} />
-            <Route path="/news" element={<NewsPage />} />
-            {/* Adaugă alte rute aici după necesitate */}
+            <Route path="/add" element={<NewsPage />} />
         </Routes>
     );
 };

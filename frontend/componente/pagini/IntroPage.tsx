@@ -22,7 +22,7 @@ const IntroPage: React.FC = () => {
             Bine ai venit pe pagina de introducre!
           </Typography>
           <Typography variant="body1">
-            Acesta este un exemplu simplu de pagină de introducere care folosește Material-UI și React.
+            Acesta este un exemplu simplu de pagină de introducere 
           </Typography>
           {/* Alte componente sau conținut pot fi adăugate aici. */}
         </Box>
