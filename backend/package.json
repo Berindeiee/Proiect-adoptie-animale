@@ -12,6 +12,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.17.0",
+    "@types/node": "^20.10.4",
     "bcrypt": "^5.1.1",
     "cookie": "^0.6.0",
     "jsonwebtoken": "^9.0.2",

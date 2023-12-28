@@ -72,7 +72,6 @@ const AddForm = () => {
 
 
   const handlePhotoChange = (files) => {
-    console.log('Fotografii încărcate:', files);
     setUploadedPhotos(files); // Actualizează starea cu fișierele încărcate
 };
 
@@ -80,7 +79,7 @@ const AddForm = () => {
     setSnackbarOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const nume_animal = document.getElementById('nume-animal') as HTMLInputElement;
     const rasa_animal = document.getElementById('rasa-animal') as HTMLInputElement;
@@ -145,19 +144,68 @@ const AddForm = () => {
       return;
   }
 
+  const formData = new FormData();
+  uploadedPhotos.forEach(file => {
+    formData.append('files', file);
+  });
+
+  try {
+    const response = await fetch('http://localhost:8080/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    console.log("Răspunsul serverului:", response);
+    // Extrage datele JSON din răspuns
+    const result = await response.json();
+    // Afisează URL-urile în consolă sau în UI
+    console.log("URL-urile fișierelor încărcate:", result.urls);
+
+    try {
+    // Trimiterea datelor prin WebSocket
+    const messageData = {
+      name: nume_animal.value,
+      type: tip_animal.value,
+      breed: rasa_animal.value,
+      description: descriere_animal.value,
+      urls: result.files
+    };
+
+
+    if (socket && messageData.urls.length > 0) {
+      socket.send(JSON.stringify(messageData));
+    }
+  } catch (error) {
+    console.error('Eroare:', error);
+    setSnackbarMessage("Eroare la trimiterea datelor!");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+
+  } catch (error) {
+    console.error('Eroare:', error);
+    setSnackbarMessage("Eroare la încărcarea fotografiilor în cloud!");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+
     // Restul logicii de trimitere...
   };
   
 
   return (
-    <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2, background: '#C7FFED', borderRadius: '10px' }}>
+    <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2, background: '#ffffff', borderRadius: '10px' }}>
       <Grid container spacing={2} sx={{ maxWidth: 900 }}>
-        <Grid item xs={12} md={4} sx={{ bgcolor: '#DBF227', color: 'white', textAlign: 'center', p: 4, borderRadius: '10px' }}>
+        <Grid item xs={12} md={4} sx={{ bgcolor: '#c2faff', color: 'white', textAlign: 'center', p: 4, borderRadius: '10px' }}>
           <TextTitlu />
           <Dog />
         </Grid>
         <Grid item xs={12} md={8} sx={{ p: 2 }}>
-          <Card raised sx={{ bgcolor: '#D6D58E' }}>
+          <Card raised sx={{ bgcolor: '#6ec7ff' }}>
             <CardContent>
               <form noValidate autoComplete="off">
                 <TextField fullWidth id='nume-animal'label="Numele Animalului" margin="normal" variant="outlined" sx={{ mb: 2 }} />
@@ -222,7 +270,7 @@ const AddForm = () => {
                 />
                 <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
                   <Grid item>
-                    <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    <Button variant="contained" onClick={handleSubmit} size="medium" sx={{borderRadius:10}}>
                       Salvează
                     </Button>
                   </Grid>

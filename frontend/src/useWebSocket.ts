@@ -7,6 +7,7 @@ const useWebSocket = () => {
   // Ref pentru a ține evidența dacă deconectarea a fost intenționată
   const isDisconnectIntentionalRef = useRef(false);
 
+
   // Conectează WebSocket-ul
   const connectWebSocket = useCallback((): void => {
     if (!socket.current || socket.current.readyState === WebSocket.CLOSED || socket.current.readyState === WebSocket.CLOSING) {
@@ -19,7 +20,7 @@ const useWebSocket = () => {
       };
 
       socket.current.onclose = (): void => {
-       
+
         if (!isDisconnectIntentionalRef.current) {
           console.log('Sesion WebSocket Disconnected. Attempting to reconnect...');
           setTimeout(connectWebSocket, 3000);
@@ -33,10 +34,7 @@ const useWebSocket = () => {
         console.error('Sesion WebSocket Error', event);
       };
 
-      socket.current.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        console.log('Mesaj primit de la server:', response);
-      };
+
     } else {
       console.log('O conexiune sesion WebSocket este deja deschisă sau în curs de deschidere');
     }
@@ -50,6 +48,24 @@ const useWebSocket = () => {
       socket.current.close();
     }
   }, []);
+
+  // Funcția de trimitere a mesajelor către server
+  const sendMessage = useCallback((message) => {
+    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+      socket.current.send(message);
+    }
+  }, []);
+
+  // Funcția de gestionare a mesajelor primite
+  const onMessageReceived = useCallback((handler) => {
+    if (socket.current) {
+      socket.current.onmessage = (event) => {
+        const data = event.data;
+        handler(data);
+      };
+    }
+  }, []);
+
 
 
   useEffect(() => {
@@ -71,7 +87,7 @@ const useWebSocket = () => {
   }, [connectWebSocket]);
 
   // Returnează referința socket-ului și funcția de deconectare intenționată
-  return { socket, intentionalDisconnect, connectWebSocket };
+  return { socket, intentionalDisconnect, connectWebSocket, sendMessage, onMessageReceived };
 };
 
 export default useWebSocket;

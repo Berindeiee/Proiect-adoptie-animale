@@ -66,4 +66,5 @@ export function startWebSocketServer_login() {
       },
     },
   });
+console.log('Serverul WebSocket a pornit');
 }

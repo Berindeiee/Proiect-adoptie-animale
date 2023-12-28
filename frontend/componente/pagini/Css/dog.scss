@@ -32,7 +32,7 @@
 }
 
 .body {
-  background: #60C8E7;
+  background: rgb(240, 235, 202);
   border-radius: 300px 300px 0 0;
   height: 300px;
 }
@@ -40,14 +40,14 @@
 .beard {
   width: 55px;
   height: 65px;
-  background: #087BA5;
+  background: rgb(190, 151, 114);
   margin: 0 auto;
   border-radius: 20px;
   position: relative;
 
   &:after {
     content: '';
-    background: #087BA5;
+    background: rgb(190, 151, 114);
     width: 26px;
     height: 13px;
     border-radius: 0 0 25px 25px;
@@ -218,7 +218,7 @@
     display: inline-block;
     content: '';
     position: absolute;
-    background: #087BA5;
+    background: rgb(240, 235, 202);
     width: 45px;
   }
 
@@ -235,7 +235,7 @@
     display: inline;
     width: 12px;
     height: 55px;
-    background: #087BA5;
+    background: rgb(190, 151, 114);
     position: absolute;
     bottom: 0;
 
@@ -243,7 +243,7 @@
       content: '';
       width: 28px;
       height: 12px;
-      background: #60C8E7;
+      background: rgb(190, 151, 114);
       border-radius: 20px 20px 0 0;
       display: inline-block;
       bottom: 0;
@@ -280,7 +280,7 @@
   &:before {
     content: '';
     display: inline-block;
-    background: #087BA5;
+    background: rgb(190, 151, 114);
     width: 40px;
     height: 90px;
     border-radius: 100% 100% 0 0;
@@ -288,13 +288,13 @@
 
   &:after {
     transform: translateX(40px);
-    border: 10px solid #60C8E7;
+    border: 10px solid rgb(240, 235, 202);
     box-sizing: border-box;
   }
 }
 
 .tail {
-  background: #60C8E7;
+  background: rgb(190, 151, 114);
   width: 14px;
   height: 80px;
   position: absolute;

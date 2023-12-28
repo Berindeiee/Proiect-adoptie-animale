@@ -1,5 +1,5 @@
 // HomePage.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavBar from '../organisme/NavBar'; // Presupunând că NavBar.tsx este în același director
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -7,12 +7,21 @@ import Box from '@mui/material/Box';
 import {useWebSocketContext } from '../WebSocketContext';
 
 const IntroPage: React.FC = () => {
-  const { socket } = useWebSocketContext();
-  if (socket) {
-    socket.onmessage = (event) => {
-      console.log(event.data);
-    };
-  }
+  const { sendMessage, onMessageReceived } = useWebSocketContext();
+
+  useEffect(() => {
+    // Setează un handler pentru mesajele primite
+    onMessageReceived((data) => {
+      console.log("Mesaj primit:", data);
+      // Aici puteți adăuga logica specifică în funcție de mesaj
+    });
+  }, [onMessageReceived]);
+
+  // Funcția de trimitere a unui mesaj
+  const handleSendMessage = () => {
+    sendMessage("Mesajul meu către server");
+  };
+  
   return (
     <div>
       <NavBar />

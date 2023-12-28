@@ -5,6 +5,8 @@ import useWebSocket from '../src/useWebSocket'; // Actualizați calea către hoo
 interface WebSocketContextValue {
   socket: WebSocket | null;
   intentionalDisconnect: () => void;
+  sendMessage: (message: string) => void;
+  onMessageReceived: (handler: (data: string) => void) => void;
 }
 
 // Creează un context de WebSocket cu tipul corespunzător
@@ -12,7 +14,7 @@ const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
 // Provider component care înconjoară copiii în contextul WebSocket
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { socket, intentionalDisconnect, connectWebSocket } = useWebSocket();
+  const { socket, intentionalDisconnect, connectWebSocket, sendMessage, onMessageReceived} = useWebSocket();
   const hasConnectedRef = useRef(false);
   console.log('socket.current.readyState=' + socket.current?.readyState);
   useEffect(() => {
@@ -36,7 +38,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
 
   return (
-    <WebSocketContext.Provider value={{ socket: socket.current, intentionalDisconnect }}>
+    <WebSocketContext.Provider value={{ socket: socket.current, intentionalDisconnect, sendMessage, onMessageReceived }}>
       {children}
     </WebSocketContext.Provider>
   );
