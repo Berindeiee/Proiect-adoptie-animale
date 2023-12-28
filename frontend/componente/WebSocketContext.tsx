@@ -5,8 +5,8 @@ import useWebSocket from '../src/useWebSocket'; // Actualizați calea către hoo
 interface WebSocketContextValue {
   socket: WebSocket | null;
   intentionalDisconnect: () => void;
-  sendMessage: (message: string) => void;
-  onMessageReceived: (handler: (data: string) => void) => void;
+  sendMessage: (message: any) => void;
+  onMessageReceived: (data: any, showDialog: any) => void; // Update the function signature
 }
 
 // Creează un context de WebSocket cu tipul corespunzător
@@ -22,6 +22,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!hasConnectedRef.current) {
       hasConnectedRef.current = true;
       connectWebSocket();
+      onMessageReceived();
     }
 
     console.log('Componenta WebSocketProvider a fost montată');

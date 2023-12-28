@@ -75,7 +75,6 @@ try {
             files.push(file);
           }
         }
-        // ... cod pentru extragerea fișierelor din cerere ...
 
         return uploadFilesToAzure(files, containerClient)
           .then((urls) => {

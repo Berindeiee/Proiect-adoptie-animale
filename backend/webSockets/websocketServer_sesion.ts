@@ -1,12 +1,16 @@
 import Bun from 'bun';
 import { parse } from 'cookie';
 import { verify } from 'jsonwebtoken';
-import { User, IUser } from '../schema/schema';
-import { saveUser, checkUsernameAvailability, loginUser } from '../controller/userController';
+import { addPost } from '../controller/postController';
 
 let connectionId = 0;
 let contor = 0;
 
+type WebSocketData = {
+    createdAt: number;
+    token: string;
+    userId: string;
+};
 const JWT_SECRET = 'adoptie'; // Înlocuiește cu secretul tău pentru JWT
 
 function verifyToken(token: string): boolean {
@@ -17,9 +21,18 @@ function verifyToken(token: string): boolean {
         return false;
     }
 }
+
+function getUserIdFromToken(token: string): string {
+    const decodedToken = verify(token, JWT_SECRET) as { id: string };
+
+    return decodedToken.id;
+}
+
+const tokenMap = new Map();
+
 const intervalMap = new Map();
 export function swebsocketServer_sesion() {
-    Bun.serve({
+    Bun.serve<WebSocketData>({
         hostname: 'localhost',
         port: 3001,
         fetch(req, server) {
@@ -28,8 +41,16 @@ export function swebsocketServer_sesion() {
                 const cookies = parse(req.headers.get('Cookie') || '');
                 const jwtToken = cookies.jwt;
                 if (jwtToken && verifyToken(jwtToken)) {
-                    if (server.upgrade(req)) {
-                        return; // Successful upgrade
+                    const succes = server.upgrade(req, {
+                        data:
+                        {
+                            createdAt: Date.now(),
+                            token: jwtToken,
+                            userId: getUserIdFromToken(jwtToken)
+                        }
+                    })
+                    if (succes) {
+                        return;
                     }
                 } else {
                     return new Response("Upgrade failed, token lipsă sau invalid", { status: 401 });
@@ -40,6 +61,7 @@ export function swebsocketServer_sesion() {
         },
         websocket: {
             open(ws) {
+
                 connectionId++;
                 contor++;
                 console.log(`Conexiune sesion WebSocket deschisă. ID Conexiune: ${connectionId}S, numar conexiuni: ${contor}`);
@@ -47,6 +69,7 @@ export function swebsocketServer_sesion() {
                 const intervalId = setInterval(() => {
                     if (ws.readyState === 1) {
                         ws.send(JSON.stringify({ type: 'PERIODIC_MESSAGE', message: "Mesaj periodic de la server" }));
+                        //ws.send(JSON.stringify({ type: 'TOKEN_INV' }));
                     }
                 }, 5000);
 
@@ -56,20 +79,32 @@ export function swebsocketServer_sesion() {
             async message(ws, message) {
                 try {
                     const parsedMessage = JSON.parse(String(message));
-
-                    switch (parsedMessage.type) {
-                        case 'SAVE_POST':
-                            console.log(`Mesaj primit de la client: ${message}`);
-
-                        default:
-                            ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
+                    if (!verifyToken(ws.data.token)) {
+                        console.log('Token invalid');
+                        ws.send(JSON.stringify({ type: 'TOKEN_INV' }));
+                        setTimeout(() => {
+                            ws.close();
+                        }, 2000);
                     }
+                    else
+                        switch (parsedMessage.type) {
+                            case 'ADD_POST':
+                                const userId = ws.data.userId;
+                                //console.log('parsedMessage.data', parsedMessage.data);
+                                const response = await addPost(parsedMessage.data, userId);
+                                console.log('response', response);
+                                ws.send(JSON.stringify({ type: response.message === 'Postare adăugată cu succes' ? 'POST_SUCCESS' : 'POST_ERROR', message:response }));
+                                break;
+
+                            default:
+                                ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
+                        }
                 } catch (error) {
                     console.error('Eroare la procesarea mesajului(session):', error);
                     ws.send(JSON.stringify({ type: 'ERROR', data: 'Eroare la procesarea cererii(session)' }));
                 }
             },
-            // Add other handlers as needed (close, etc.)
+
             close(ws) {
                 // Oprește timer-ul asociat cu acest ws
                 const intervalId = intervalMap.get(ws);

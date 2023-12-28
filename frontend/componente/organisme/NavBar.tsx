@@ -15,6 +15,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import FilmAutocomplete from '../atomi/FilmAutocomplete';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from '../WebSocketContext';
+import { useDialog } from '../../src/DialogContext';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Adaugă Anunț', 'Login-register', 'Logout'];
@@ -67,6 +68,13 @@ const  NavBar=()=> {
     }
     setAnchorElUser(null); 
   };
+
+
+  const { showDialog } = useDialog();
+  const { sendMessage, onMessageReceived } = useWebSocketContext();
+  React.useEffect(() => {
+    onMessageReceived((data,) => {}, showDialog);
+  }, [onMessageReceived, showDialog]); // Dependențe pentru useEffect
 
   return (
     <>

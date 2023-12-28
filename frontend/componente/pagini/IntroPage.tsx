@@ -7,20 +7,7 @@ import Box from '@mui/material/Box';
 import {useWebSocketContext } from '../WebSocketContext';
 
 const IntroPage: React.FC = () => {
-  const { sendMessage, onMessageReceived } = useWebSocketContext();
 
-  useEffect(() => {
-    // Setează un handler pentru mesajele primite
-    onMessageReceived((data) => {
-      console.log("Mesaj primit:", data);
-      // Aici puteți adăuga logica specifică în funcție de mesaj
-    });
-  }, [onMessageReceived]);
-
-  // Funcția de trimitere a unui mesaj
-  const handleSendMessage = () => {
-    sendMessage("Mesajul meu către server");
-  };
   
   return (
     <div>

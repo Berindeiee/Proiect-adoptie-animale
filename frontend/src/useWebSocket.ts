@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useDialog } from './DialogContext';
 
 const useWebSocket = () => {
   // Ref pentru obiectul WebSocket
@@ -56,12 +57,22 @@ const useWebSocket = () => {
     }
   }, []);
 
-  // Funcția de gestionare a mesajelor primite
-  const onMessageReceived = useCallback((handler) => {
+  const onMessageReceived = useCallback((callback = (data) => {}, showDialog = (data) => {const { showDialog } = useDialog();}) => {
     if (socket.current) {
       socket.current.onmessage = (event) => {
-        const data = event.data;
-        handler(data);
+        const data = JSON.parse(event.data);
+        // Verifică dacă mesajul primit este de tipul 'SPECIAL_MESSAGE'
+        if (data.type === 'PERIODIC_MESSAGE') {
+          console.log('Mesaj periodic primit:', data.message);
+          return; // Opțional: returnează dacă nu doriți să trimiteți mai departe mesajul
+        }
+
+        if (data.type === 'TOKEN_INV') {
+          showDialog('Sesiunea a expirat. Vă rugăm să vă logați din nou.');
+        }
+
+        // Trimite mesajul către handlerul definit în componentă
+        callback(data);
       };
     }
   }, []);

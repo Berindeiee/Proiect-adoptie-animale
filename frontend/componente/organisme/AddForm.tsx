@@ -22,10 +22,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import TextTitlu from '../atomi/textTitlu';
-import {useWebSocketContext } from '../WebSocketContext';
-import { useState } from 'react';
+import { useWebSocketContext } from '../WebSocketContext';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import { useDialog } from '../../src/DialogContext';
 
 const tipuriAnimale = [
   { label: 'Câine' },
@@ -59,8 +60,8 @@ const tipuriAnimale = [
 
 
 const AddForm = () => {
-  
-  const { socket } = useWebSocketContext();
+
+  //const { socket } = useWebSocketContext();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
@@ -70,10 +71,12 @@ const AddForm = () => {
   const [greutate, setGreutate] = useState('');
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
 
+  const { sendMessage, onMessageReceived } = useWebSocketContext();
+
 
   const handlePhotoChange = (files) => {
     setUploadedPhotos(files); // Actualizează starea cu fișierele încărcate
-};
+  };
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -99,7 +102,7 @@ const AddForm = () => {
       setSnackbarOpen(true);
       return;
     }
-    
+
     if (!rasa_animal.value) {
       setSnackbarMessage("Te rog să introduci rasa animalului!");
       setSnackbarSeverity("error");
@@ -115,7 +118,7 @@ const AddForm = () => {
       return;
     }
 
-    
+
     if (!gen) {
       setSnackbarMessage("Te rog să selectezi genul!");
       setSnackbarSeverity("error");
@@ -130,7 +133,7 @@ const AddForm = () => {
       return;
     }
 
-    if(!descriere_animal.value){
+    if (!descriere_animal.value) {
       setSnackbarMessage("Te rog să introduci descrierea animalului!");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -142,60 +145,85 @@ const AddForm = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
-  }
+    }
 
-  const formData = new FormData();
-  uploadedPhotos.forEach(file => {
-    formData.append('files', file);
-  });
-
-  try {
-    const response = await fetch('http://localhost:8080/upload', {
-      method: 'POST',
-      body: formData,
+    const formData = new FormData();
+    uploadedPhotos.forEach(file => {
+      formData.append('files', file);
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    console.log("Răspunsul serverului:", response);
-    // Extrage datele JSON din răspuns
-    const result = await response.json();
-    // Afisează URL-urile în consolă sau în UI
-    console.log("URL-urile fișierelor încărcate:", result.urls);
-
     try {
-    // Trimiterea datelor prin WebSocket
-    const messageData = {
-      name: nume_animal.value,
-      type: tip_animal.value,
-      breed: rasa_animal.value,
-      description: descriere_animal.value,
-      urls: result.files
-    };
+      const response = await fetch('http://localhost:8080/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
-    if (socket && messageData.urls.length > 0) {
-      socket.send(JSON.stringify(messageData));
+      console.log("Răspunsul serverului:", response);
+      // Extrage datele JSON din răspuns
+      const result = await response.json();
+      // Afisează URL-urile în consolă
+      console.log("URL-urile fișierelor încărcate:", result.urls);
+
+      try {
+        // Trimiterea datelor prin WebSocket
+        const messageData = {
+          name: nume_animal.value,
+          animalType: tip_animal.value,
+          breed: rasa_animal.value,
+          description: descriere_animal.value,
+          weight: greutate,
+          gender: gen,
+          birthDate: data_animal,
+          urls: result.urls
+        };
+        if (messageData.urls.length > 0) {
+          const messageString = JSON.stringify({ type: "ADD_POST", data: messageData });
+          // Trimiterea datelor serializate prin WebSocket
+          sendMessage(messageString);
+        }
+      } catch (error) {
+        console.error('Eroare:', error);
+        setSnackbarMessage("Eroare la trimiterea datelor!");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+
+    } catch (error) {
+      console.error('Eroare:', error);
+      setSnackbarMessage("Eroare la încărcarea fotografiilor în cloud!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
-  } catch (error) {
-    console.error('Eroare:', error);
-    setSnackbarMessage("Eroare la trimiterea datelor!");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-
-  } catch (error) {
-    console.error('Eroare:', error);
-    setSnackbarMessage("Eroare la încărcarea fotografiilor în cloud!");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-
-    // Restul logicii de trimitere...
   };
-  
+
+
+  const { showDialog } = useDialog();
+  useEffect(() => {
+    onMessageReceived((data,) => {
+      console.log("Mesaj primit:", data);
+      switch (data.type) {
+        case 'POST_SUCCESS':
+          console.log('Postarea a fost adăugată cu succes!');
+          setSnackbarMessage('Postarea a fost adăugată cu succes!');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+          // Resetați formularul sau faceți alte acțiuni necesare
+          break;
+
+        case 'POST_ERROR':
+          setSnackbarMessage('Eroare la adăugarea postării.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
+          break;
+
+      }
+    }, showDialog);
+  }, [onMessageReceived, showDialog]); // Dependențe pentru useEffect
+
 
   return (
     <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2, background: '#ffffff', borderRadius: '10px' }}>
@@ -208,28 +236,29 @@ const AddForm = () => {
           <Card raised sx={{ bgcolor: '#6ec7ff' }}>
             <CardContent>
               <form noValidate autoComplete="off">
-                <TextField fullWidth id='nume-animal'label="Numele Animalului" margin="normal" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth id='nume-animal' label="Numele Animalului" margin="normal" variant="outlined" sx={{ mb: 2 }} />
                 <Autocomplete
                   disablePortal
                   id="combo-box-animale"
                   options={tipuriAnimale}
+                  isOptionEqualToValue={(option, value) => option.label === value.label}
                   renderInput={(params) => <TextField {...params} label="Tip de Animal" />}
                 />
                 <TextField fullWidth id='rasa-animal' label="Rasa Animalului" margin="normal" variant="outlined" sx={{ mb: 2 }} />
                 <LocalizationProvider dateAdapter={AdapterDayjs} >
-                  <DatePicker 
-                  value={data_animal}
-                  onChange={(newValue) => {
-                    setdata_animal(newValue);
-                  }}
-                  label="Data nașterii" 
-                  sx={{ width: '100%', marginBottom: '15px' }} />
+                  <DatePicker
+                    value={data_animal}
+                    onChange={(newValue) => {
+                      setdata_animal(newValue);
+                    }}
+                    label="Data nașterii"
+                    sx={{ width: '100%', marginBottom: '15px' }} />
                 </LocalizationProvider>
                 <FormControl component="fieldset" sx={{ mb: 2 }}>
                   <FormLabel component="legend">Gen</FormLabel>
                   <RadioGroup row aria-label="gender" name="gender1"
-                  value={gen}
-                  onChange={(e) => setGen(e.target.value)}
+                    value={gen}
+                    onChange={(e) => setGen(e.target.value)}
                   >
                     <FormControlLabel value="female" control={<Radio />} label="Femelă" sx={{ mr: 2 }} />
                     <FormControlLabel value="male" control={<Radio />} label="Mascul" />
@@ -238,8 +267,8 @@ const AddForm = () => {
                 <FormControl component="fieldset" sx={{ mb: 2 }}>
                   <FormLabel component="legend">Greutate</FormLabel>
                   <RadioGroup row aria-label="weight" name="weight"
-                  value={greutate}
-                  onChange={(e) => setGreutate(e.target.value)}
+                    value={greutate}
+                    onChange={(e) => setGreutate(e.target.value)}
                   >
                     <FormControlLabel value="0-5" control={<Radio />} label="0-5 kg" sx={{ mr: 2 }} />
                     <FormControlLabel value="5-10" control={<Radio />} label="5-10 kg" sx={{ mr: 2 }} />
@@ -264,13 +293,13 @@ const AddForm = () => {
                   filesLimit={15}
                   showPreviews={true}
                   showPreviewsInDropzone={false}
-                  showFileNamesInPreview={true} 
+                  showFileNamesInPreview={true}
                   dropzoneText="Trage pozele aici sau apasă pentru a le încărca"
                   onChange={handlePhotoChange}
                 />
                 <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
                   <Grid item>
-                    <Button variant="contained" onClick={handleSubmit} size="medium" sx={{borderRadius:10}}>
+                    <Button variant="contained" onClick={handleSubmit} size="medium" sx={{ borderRadius: 10 }}>
                       Salvează
                     </Button>
                   </Grid>

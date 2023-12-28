@@ -2,6 +2,7 @@
 import { Routes, Route } from 'react-router-dom';
 import IntroPage from '../componente/pagini/IntroPage';
 import NewsPage from '../componente/pagini/NewsPage';
+import { DialogProvider } from './DialogContext';
 
 const WebSocketRoutes = () => {
     return (

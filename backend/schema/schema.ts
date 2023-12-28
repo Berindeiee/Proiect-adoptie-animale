@@ -47,3 +47,44 @@ userSchema.pre('save', async function(next) {
 // Exportarea modelului User, care este utilizat pentru a interacționa cu colecția de 
 // utilizatori din baza de date MongoDB. Modelul este creat folosind schema definită mai sus.
 export const User = mongoose.model<IUser>('User', userSchema);
+
+
+
+// Definirea interfeței IPost pentru a tipiza documentele postare din MongoDB.
+// Aceasta extinde interfața Document oferită de Mongoose și definește structura 
+// unei postări, inclusiv detalii despre animal, descriere, imagini, etc.
+export interface IPost extends Document {
+  name: string;
+  animalType: string;
+  breed: string;
+  birthDate: Date;
+  gender: string;
+  weight: string;
+  description: string;
+  urls: string[];
+  isDeleted: boolean;
+  creatorId: mongoose.Schema.Types.ObjectId | string;
+  createdAt: Date; 
+}
+
+// Crearea unei scheme Mongoose pentru postări. Schema definește structura
+// unui document de postare în baza de date, inclusiv tipurile de date și 
+// validările necesare pentru fiecare câmp.
+const postSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  animalType: { type: String, required: true },
+  breed: { type: String, required: true },
+  birthDate: { type: Date, required: true },
+  gender: { type: String, required: true },
+  weight: { type: String, required: true },
+  description: { type: String, required: true },
+  urls: [{ type: String, required: true }], // Array de URL-uri către fotografiile încărcate
+  isDeleted: { type: Boolean, required: true, default: false },
+  creatorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdAt: { type: Date, required: true, default: Date.now },
+
+});
+
+// Exportarea modelului Post, care este utilizat pentru a interacționa cu colecția de 
+// postări din baza de date MongoDB. Modelul este creat folosind schema definită mai sus.
+export const Post = mongoose.model<IPost>('Post', postSchema);
