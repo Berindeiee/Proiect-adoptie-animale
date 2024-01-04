@@ -1,7 +1,7 @@
 import Bun from 'bun';
 import { parse } from 'cookie';
 import { verify } from 'jsonwebtoken';
-import { addPost } from '../controller/postController';
+import { addPost,getPosts } from '../controller/postController';
 
 let connectionId = 0;
 let contor = 0;
@@ -95,7 +95,19 @@ export function swebsocketServer_sesion() {
                                 console.log('response', response);
                                 ws.send(JSON.stringify({ type: response.message === 'Postare adăugată cu succes' ? 'POST_SUCCESS' : 'POST_ERROR', message:response }));
                                 break;
-
+                                case 'GET_POST_BATCH':
+                                    // Presupunem că parsedMessage conține un câmp 'lastRetrievedId' și 'batchSize'
+                                    const { lastRetrievedId, batchSize } = parsedMessage;
+                                    const postsResponse = await getPosts(batchSize, lastRetrievedId);
+            
+                                    if (postsResponse.posts && postsResponse.posts.length > 0) {
+                                        ws.send(JSON.stringify({
+                                            type: 'POST_BATCH',
+                                            posts: postsResponse.posts,
+                                            hasMore: postsResponse.hasMore
+                                        }));
+                                    }
+                                    break;
                             default:
                                 ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
                         }

@@ -15,13 +15,17 @@ interface SimpleDialogProps {
 
 const SimpleDialog: React.FC<SimpleDialogProps> = ({ open, text="Sesiunea a expirat. Vă rugăm să vă logați din nou.", onClose }) => {
     const navigate = useNavigate();
+    const handleOkClick = () => {
+        onClose(); // Închide dialogul
+        navigate('/'); // Navighează către pagina principală
+    };
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogContent>
                 <DialogContentText>{text}</DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => navigate('/')} color="primary">
+                <Button onClick={handleOkClick}>
                     OK
                 </Button>
             </DialogActions>

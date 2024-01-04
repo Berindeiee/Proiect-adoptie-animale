@@ -30,6 +30,7 @@
     "i18next-browser-languagedetector": "^7.1.0",
     "i18next-http-backend": "^2.3.1",
     "material-ui-dropzone": "^3.5.0",
+    "mui-image-slider": "^1.0.10",
     "nodemon": "^3.0.1",
     "react": "^18.2.0",
     "react-devtools": "^4.28.5",

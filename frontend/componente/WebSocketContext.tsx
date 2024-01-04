@@ -35,7 +35,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       hasConnectedRef.current = false;
     };
 
-  }, [connectWebSocket]);
+  }, [connectWebSocket, intentionalDisconnect, onMessageReceived, socket]);
 
 
   return (

@@ -5,6 +5,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {useWebSocketContext } from '../WebSocketContext';
+import RecipeReviewCard from '../organisme/RecipeReviewCard';
 
 const IntroPage: React.FC = () => {
 
@@ -14,13 +15,21 @@ const IntroPage: React.FC = () => {
       <NavBar />
       <Container maxWidth="md">
         <Box my={4}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Bine ai venit pe pagina de introducre!
-          </Typography>
-          <Typography variant="body1">
-            Acesta este un exemplu simplu de pagină de introducere 
-          </Typography>
-          {/* Alte componente sau conținut pot fi adăugate aici. */}
+          <RecipeReviewCard 
+          animalName="Titlul"
+          animalBreed="Breed"
+          animalType="Autor"
+          birthDate="Data"
+          gender="Gen"
+          weight="Greutate"
+          description="Descriere"
+          images={['https://adrianberindeie.blob.core.windows.net/adoptie/Eren_1703779322807_1703790163967_1704390222027.jpg',
+          'https://adrianberindeie.blob.core.windows.net/adoptie/database_1704390222035.png',
+          'https://adrianberindeie.blob.core.windows.net/adoptie/logo-standard_1704390222036.png',
+          'https://adrianberindeie.blob.core.windows.net/adoptie/application_1704390222037.png'
+        ]}
+          content="Descrierea rețetei..."
+          />
         </Box>
       </Container>
     </div>

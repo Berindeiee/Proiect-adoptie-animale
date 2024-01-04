@@ -57,10 +57,12 @@ const useWebSocket = () => {
     }
   }, []);
 
-  const onMessageReceived = useCallback((callback = (data) => {}, showDialog = (data) => {const { showDialog } = useDialog();}) => {
+  const { showDialog } = useDialog();
+  const onMessageReceived = useCallback((callback = (data) => {}) => {
     if (socket.current) {
       socket.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
+
         // Verifică dacă mesajul primit este de tipul 'SPECIAL_MESSAGE'
         if (data.type === 'PERIODIC_MESSAGE') {
           console.log('Mesaj periodic primit:', data.message);
@@ -88,11 +90,11 @@ const useWebSocket = () => {
 
     // Adaugă listener pentru evenimentul 'beforeunload'
     window.addEventListener('beforeunload', closeWebSocketOnUnload);
-
+    isDisconnectIntentionalRef.current = false;
     // Funcția de curățare pentru useEffect
     return () => {
       // Închide WebSocket-ul
-      intentionalDisconnect();
+      isDisconnectIntentionalRef.current = true;
       window.removeEventListener('beforeunload', closeWebSocketOnUnload);
     };
   }, [connectWebSocket]);
