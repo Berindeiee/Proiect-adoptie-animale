@@ -69,11 +69,14 @@ export async function getPosts(batchSize: number, lastRetrievedId?: string): Pro
         let query = {};
         // Dacă un `lastRetrievedId` este furnizat, adaugă o condiție în interogare pentru a lua următoarele postări
         if (lastRetrievedId) {
+            console.log('lastRetrievedId', lastRetrievedId);
             query = { _id: { $gt: lastRetrievedId } };
         }
 
         // Obține un lot de postări bazat pe `batchSize` și `lastRetrievedId`
         // Sortează-le după ID pentru a păstra ordinea cronologică
+        console.log(`Obținere postări...`);
+        console.log(`batchSize: ${batchSize}, lastRetrievedId: ${lastRetrievedId}`);
         const posts = await Post.find(query).sort({ _id: 1 }).limit(batchSize);
 
         let hasMore = false;

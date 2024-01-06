@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useDialog } from './DialogContext';
 
 const useWebSocket = () => {
@@ -7,39 +7,49 @@ const useWebSocket = () => {
 
   // Ref pentru a ține evidența dacă deconectarea a fost intenționată
   const isDisconnectIntentionalRef = useRef(false);
+  const [isConnected, setIsConnected] = useState(false);
 
 
-  // Conectează WebSocket-ul
-  const connectWebSocket = useCallback((): void => {
-    if (!socket.current || socket.current.readyState === WebSocket.CLOSED || socket.current.readyState === WebSocket.CLOSING) {
-      isDisconnectIntentionalRef.current = false;
-      console.log('Conectare la sesion WebSocket...');
-      socket.current = new WebSocket("ws://127.0.0.1:3001");
+  // Conectează WebSocket-ul și returnează o promisiune
+  const connectWebSocket = useCallback(() => {
+    return new Promise<void>((resolve, reject) => {console.log('345435345434');
+      if (!socket.current || socket.current.readyState === WebSocket.CLOSED || socket.current.readyState === WebSocket.CLOSING) {
+        
+        isDisconnectIntentionalRef.current = false;
+        console.log('Conectare la sesion WebSocket...');
+        socket.current = new WebSocket("ws://127.0.0.1:3001");
 
-      socket.current.onopen = (): void => {
-        console.log('Sesion WebSocket Connected');
-      };
+        socket.current.onopen = (): void => {
+          console.log('Sesion WebSocket Connected');
+          setIsConnected(true);
+          resolve(); // Rezolvă promisiunea când conexiunea este deschisă
+        };
 
-      socket.current.onclose = (): void => {
+        socket.current.onclose = (): void => {
+          if (!isDisconnectIntentionalRef.current) {
+            console.log('Sesion WebSocket Disconnected. Attempting to reconnect...');
+            setIsConnected(false);
+            setTimeout(connectWebSocket, 3000);
+          } else {
+            console.log('Sesion WebSocket Disconnected Intentionally');
+            isDisconnectIntentionalRef.current = false;
+          }
+          reject(); // Respinge promisiunea la închidere
+          setIsConnected(false);
+        };
 
-        if (!isDisconnectIntentionalRef.current) {
-          console.log('Sesion WebSocket Disconnected. Attempting to reconnect...');
-          setTimeout(connectWebSocket, 3000);
-        } else {
-          console.log('Sesion WebSocket Disconnected Intentionally');
-          isDisconnectIntentionalRef.current = false;
-        }
-      };
+        socket.current.onerror = (event): void => {
+          console.error('Sesion WebSocket Error', event);
+          reject(event); // Respinge promisiunea la eroare
+        };
 
-      socket.current.onerror = (event): void => {
-        console.error('Sesion WebSocket Error', event);
-      };
-
-
-    } else {
-      console.log('O conexiune sesion WebSocket este deja deschisă sau în curs de deschidere');
-    }
+      } else {
+        console.log('O conexiune sesion WebSocket este deja deschisă sau în curs de deschidere');
+        resolve(); // Rezolvă promisiunea dacă socket-ul este deja deschis
+      }
+    });
   }, []);
+
 
   // Deconectează WebSocket-ul intenționat
   const intentionalDisconnect = useCallback(() => {
@@ -58,35 +68,39 @@ const useWebSocket = () => {
   }, []);
 
   const { showDialog } = useDialog();
-  const onMessageReceived = useCallback((callback = (data) => {}) => {
-    if (socket.current) {
+
+  const onMessageReceived = useCallback((callback = (data) => { console.log("mimi") }) => {
+    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
       socket.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        // Verifică dacă mesajul primit este de tipul 'SPECIAL_MESSAGE'
         if (data.type === 'PERIODIC_MESSAGE') {
           console.log('Mesaj periodic primit:', data.message);
-          return; // Opțional: returnează dacă nu doriți să trimiteți mai departe mesajul
+          return;
         }
 
         if (data.type === 'TOKEN_INV') {
           showDialog('Sesiunea a expirat. Vă rugăm să vă logați din nou.');
+          return;
         }
 
         // Trimite mesajul către handlerul definit în componentă
         callback(data);
+
+
       };
     }
-  }, []);
+  }, [isConnected]);
 
 
 
   useEffect(() => {
-
     // Funcția care închide socket-ul atunci când pagina este în curs de închidere sau reîncărcare
     const closeWebSocketOnUnload = () => {
       intentionalDisconnect();
     };
+    sendMessage("");
+    onMessageReceived();
 
     // Adaugă listener pentru evenimentul 'beforeunload'
     window.addEventListener('beforeunload', closeWebSocketOnUnload);
@@ -97,10 +111,10 @@ const useWebSocket = () => {
       isDisconnectIntentionalRef.current = true;
       window.removeEventListener('beforeunload', closeWebSocketOnUnload);
     };
-  }, [connectWebSocket]);
+  }, []);
 
   // Returnează referința socket-ului și funcția de deconectare intenționată
-  return { socket, intentionalDisconnect, connectWebSocket, sendMessage, onMessageReceived };
+  return { socket, isConnected, intentionalDisconnect, connectWebSocket, sendMessage, onMessageReceived };
 };
 
 export default useWebSocket;

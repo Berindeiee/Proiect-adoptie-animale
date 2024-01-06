@@ -20,7 +20,7 @@ import { useDialog } from '../../src/DialogContext';
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Adaugă Anunț', 'Login-register', 'Logout'];
 
-const  NavBar=()=> {
+const NavBar = () => {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -51,7 +51,7 @@ const  NavBar=()=> {
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
     }
   }
-  
+
 
   const handleNavigation = (path: string) => () => {
     if (path === 'Login-register') {
@@ -62,18 +62,18 @@ const  NavBar=()=> {
       navigate("/");
     } else if (path === 'Adaugă Anunț') {
       navigate("/add");
-    } 
+    }
     else {
       setAnchorElNav(null);
     }
-    setAnchorElUser(null); 
+    setAnchorElUser(null);
   };
 
 
   const { showDialog } = useDialog();
-  const { sendMessage, onMessageReceived } = useWebSocketContext();
+  const { onMessageReceived } = useWebSocketContext();
   React.useEffect(() => {
-    onMessageReceived((data,) => {}, showDialog);
+    onMessageReceived((data,) => { }, showDialog);
   }, [onMessageReceived, showDialog]); // Dependențe pentru useEffect
 
   return (

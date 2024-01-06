@@ -48,6 +48,24 @@ function generateToken(user: UserPayload): string {
     return jwt.sign(user, secretKey, options);
 }
 
+// funcție care returnează detaliile utilizatorului pe baza ID-ului
+export async function getUserDetailsById(userId: string): Promise<IUser | null> {
+  try {
+    // Caută utilizatorul în baza de date folosind ID-ul
+    const user = await User.findById(userId);
+    // Dacă utilizatorul există, returnează obiectul utilizatorului
+    if (user) {
+      return user;
+    } else {
+      // Dacă nu există un utilizator cu ID-ul dat, returnează null
+      return null;
+    }
+  } catch (error) {
+    // În cazul unei erori la interogarea bazei de date, loghează eroarea și returnează null
+    console.error('Eroare la obținerea detaliilor utilizatorului:', error);
+    return null;
+  }
+}
 
 
 export async function loginUser(email: string, password: string): Promise<{ message: string, user?: IUser, token?: string }> {

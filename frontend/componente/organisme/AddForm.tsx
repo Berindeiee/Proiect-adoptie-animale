@@ -55,7 +55,8 @@ const tipuriAnimale = [
   { label: 'Tigru' },
   { label: 'Cocor' },
   { label: 'Flamingo' },
-  { label: 'Vacă' }
+  { label: 'Vacă' },
+  {label: 'Pinuin'},
 ];
 
 

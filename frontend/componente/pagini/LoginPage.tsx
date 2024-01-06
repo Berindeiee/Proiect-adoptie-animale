@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
+import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import './Css/styles.css';
@@ -103,7 +103,7 @@ const LoginPage: React.FC = () => {
             socket.current?.close();
             // Redirecționează utilizatorul către pagina principală după 2 secunde
             setTimeout(() => {
-              navigate('/home-page');
+              navigate('/intro-page');
             }, 2000); // 2000 de milisecunde reprezintă 2 secunde
             break;
 

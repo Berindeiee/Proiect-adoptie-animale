@@ -1,7 +1,8 @@
 import Bun from 'bun';
 import { parse } from 'cookie';
 import { verify } from 'jsonwebtoken';
-import { addPost,getPosts } from '../controller/postController';
+import { addPost, getPosts } from '../controller/postController';
+import { getUserDetailsById } from '../controller/userController';
 
 let connectionId = 0;
 let contor = 0;
@@ -93,26 +94,49 @@ export function swebsocketServer_sesion() {
                                 //console.log('parsedMessage.data', parsedMessage.data);
                                 const response = await addPost(parsedMessage.data, userId);
                                 console.log('response', response);
-                                ws.send(JSON.stringify({ type: response.message === 'Postare adăugată cu succes' ? 'POST_SUCCESS' : 'POST_ERROR', message:response }));
+                                ws.send(JSON.stringify({ type: response.message === 'Postare adăugată cu succes' ? 'POST_SUCCESS' : 'POST_ERROR', message: response }));
                                 break;
-                                case 'GET_POST_BATCH':
-                                    // Presupunem că parsedMessage conține un câmp 'lastRetrievedId' și 'batchSize'
-                                    const { lastRetrievedId, batchSize } = parsedMessage;
-                                    const postsResponse = await getPosts(batchSize, lastRetrievedId);
-            
-                                    if (postsResponse.posts && postsResponse.posts.length > 0) {
+                            case 'GET_POST_BATCH':
+                                // Presupunem că parsedMessage conține un câmp 'lastRetrievedId' și 'batchSize'
+                                console.log('parsedMessage.data', parsedMessage.data);
+                                const postsResponse = await getPosts(parsedMessage.data.batchSize, parsedMessage.data.lastId);
+
+                                if (postsResponse.posts && postsResponse.posts.length > 0) {
+                                    // Pregătește postările cu detalii despre creatorii lor
+                                    const postsWithCreators = await Promise.all(postsResponse.posts.map(async (post) => {
+                                        // Presupunând că getUserDetailsById este o funcție exportată și disponibilă în acest context
+                                        const creatorDetails = await getUserDetailsById(post.creatorId.toString());
+                                        return {
+                                            ...post.toObject(), // Convertirea documentului Mongoose într-un obiect JavaScript
+                                            creator: creatorDetails
+                                        };
+                                    }));
+                                    ws.send(JSON.stringify({
+                                        type: 'GET_POST_BATCH_SUCCESS',
+                                        posts: postsWithCreators,
+                                        hasMore: postsResponse.hasMore
+                                    }));
+                                }
+                                else {
+                                    if (postsResponse.posts && postsResponse.posts.length === 0) {
                                         ws.send(JSON.stringify({
-                                            type: 'POST_BATCH',
+                                            type: 'GET_POST_BATCH_SUCCESS',
                                             posts: postsResponse.posts,
-                                            hasMore: postsResponse.hasMore
+                                            hasMore: false
                                         }));
-                                    }
-                                    break;
+                                    }else
+                                    ws.send(JSON.stringify({
+                                        type: 'GET_POST_BATCH_ERROR',
+                                        message: postsResponse.message
+                                    }));
+                                }
+                                break;
                             default:
                                 ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
                         }
                 } catch (error) {
                     console.error('Eroare la procesarea mesajului(session):', error);
+                    console.log('Mesaj primit:', message);
                     ws.send(JSON.stringify({ type: 'ERROR', data: 'Eroare la procesarea cererii(session)' }));
                 }
             },

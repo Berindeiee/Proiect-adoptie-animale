@@ -1,38 +1,178 @@
-// HomePage.tsx
-import React, { useEffect } from 'react';
-import NavBar from '../organisme/NavBar'; // Presupunând că NavBar.tsx este în același director
+import React, { useEffect, useState } from 'react';
+import NavBar from '../organisme/NavBar';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import {useWebSocketContext } from '../WebSocketContext';
+import Grid from '@mui/material/Unstable_Grid2'; // Importează noua versiune de Grid
+import Button from '@mui/material/Button'; // Import pentru buton
+import { useWebSocketContext } from '../WebSocketContext';
 import RecipeReviewCard from '../organisme/RecipeReviewCard';
+import { AlertColor, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import mongoose from 'mongoose';
+
+interface IPost {
+  _id: mongoose.Schema.Types.ObjectId | string;
+  name: string;
+  animalType: string;
+  breed: string;
+  birthDate: Date;
+  gender: string;
+  weight: string;
+  description: string;
+  urls: string[];
+  isDeleted: boolean;
+  creatorId: mongoose.Schema.Types.ObjectId | string;
+  createdAt: Date;
+}
 
 const IntroPage: React.FC = () => {
 
-  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
+
+  const { isConected, sendMessage, onMessageReceived } = useWebSocketContext();
+  const [posts, setPosts] = useState<IPost[]>([]); // Starea pentru postări
+  const [lastId, setLastId] = useState<string | null>(null);
+
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  // Funcția pentru a încărca mai multe postări
+  const loadMorePosts = () => {
+    // Setează un timer pentru a executa logica după o întârziere
+    setTimeout(() => {
+      const messageData = { lastId: lastId, batchSize: 3 };
+      console.log(messageData);
+      sendMessage(JSON.stringify({ type: "GET_POST_BATCH", data: messageData }));
+      setSnackbarMessage('Se încarcă postările...');
+      setSnackbarSeverity('info');
+      setSnackbarOpen(true);
+    }, 1000); // 1000 de milisecunde = 1 secundă
+  };
+
+  const loadAllPosts = () => {
+    // Setează un timer pentru a executa logica după o întârziere
+    setTimeout(() => {
+      const messageData = { lastId: lastId, batchSize: 100 };
+      console.log(messageData);
+      sendMessage(JSON.stringify({ type: "GET_POST_BATCH", data: messageData }));
+      setSnackbarMessage('Se încarcă postările...');
+      setSnackbarSeverity('info');
+      setSnackbarOpen(true);
+    }, 1000); // 1000 de milisecunde = 1 secundă
+  }
+
+
+  // Funcția pentru a procesa mesajele primite
+  const handleMessageReceived = (message,) => {
+    console.log('message: ', message);
+    switch (message.type) {
+      case 'GET_POST_BATCH_SUCCESS':
+        if (message.posts.length > 0) {
+          console.log(message);
+          setPosts((prevPosts) => [...prevPosts, ...message.posts]);
+          setSnackbarOpen(false);
+          setSnackbarMessage('Postările au fost încărcate.');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        } else {
+          setSnackbarMessage('Nu mai există postări de încărcat.');
+          setSnackbarSeverity('info');
+          setSnackbarOpen(true);
+        }
+        break;
+      // Adaugă alte cazuri dacă este necesar
+      case 'GET_POST_BATCH_ERROR':
+        setSnackbarMessage('A apărut o eroare la încărcarea postărilor.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        break;
+      default:
+        setSnackbarMessage('Tip de mesaj necunoscut.');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+    }
+  };
+
+
+  // Efect pentru a încărca inițial postările
+  useEffect(() => {
+    console.log('isConected: ', isConected);
+
+    onMessageReceived(handleMessageReceived);
+    //loadMorePosts();
+
+    return () => {
+      onMessageReceived((data,) => { }); // Resetarea handlerului
+    }
+  }, [onMessageReceived, isConected]);
+
+  useEffect(() => {
+    console.log('posts: ', posts);
+    if (posts.length > 0) {
+      const newLastId = posts[posts.length - 1]._id.toString(); // presupunând că fiecare post are un câmp `_id`
+
+      setLastId(newLastId);
+
+    }
+
+  }, [posts]); // Dependența pentru useEffect este array-ul posts
+
+
+
   return (
     <div>
       <NavBar />
-      <Container maxWidth="md">
+      <Container maxWidth="md" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
         <Box my={4}>
-          <RecipeReviewCard 
-          animalName="Titlul"
-          animalBreed="Breed"
-          animalType="Autor"
-          birthDate="Data"
-          gender="Gen"
-          weight="Greutate"
-          description="Descriere"
-          images={['https://adrianberindeie.blob.core.windows.net/adoptie/Eren_1703779322807_1703790163967_1704390222027.jpg',
-          'https://adrianberindeie.blob.core.windows.net/adoptie/database_1704390222035.png',
-          'https://adrianberindeie.blob.core.windows.net/adoptie/logo-standard_1704390222036.png',
-          'https://adrianberindeie.blob.core.windows.net/adoptie/application_1704390222037.png'
-        ]}
-          content="Descrierea rețetei..."
-          />
+          <Grid container spacing={3}>
+            {posts.map((post, index) => (
+              <Grid key={index} xs={12} sm={6} md={4}>
+                <RecipeReviewCard
+                  animalName={post.name}
+                  animalBreed={post.breed}
+                  animalType={post.animalType}
+                  birthDate={post.birthDate}
+                  gender={post.gender}
+                  weight={post.weight}
+                  description={post.description}
+                  images={post.urls}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Button
+            onClick={loadMorePosts}
+            variant="contained"
+            color="primary"
+            sx={{ margin: '20px' }}>
+            Încarcă mai multe
+          </Button>
+          <Button onClick={loadAllPosts} variant="contained" color="secondary" sx={{ margin: '20px' }}>
+            Încarcă incă 100 de postări
+          </Button>
         </Box>
       </Container>
-    </div>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        className='snackbar'
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} // Utilizează starea snackbarSeverity aici
+          elevation={6}
+          variant="filled"
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
+    </div >
   );
 };
 
