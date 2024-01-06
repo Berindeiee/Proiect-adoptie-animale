@@ -12,7 +12,7 @@ const useWebSocket = () => {
 
   // Conectează WebSocket-ul și returnează o promisiune
   const connectWebSocket = useCallback(() => {
-    return new Promise<void>((resolve, reject) => {console.log('345435345434');
+    return new Promise<void>((resolve, reject) => {
       if (!socket.current || socket.current.readyState === WebSocket.CLOSED || socket.current.readyState === WebSocket.CLOSING) {
         
         isDisconnectIntentionalRef.current = false;

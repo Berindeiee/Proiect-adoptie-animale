@@ -37,7 +37,8 @@
     "react-devtools": "^4.28.5",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.19.0",
-    "require": "^2.4.20"
+    "require": "^2.4.20",
+    "styled-components": "^6.1.6"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

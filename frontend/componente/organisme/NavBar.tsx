@@ -11,14 +11,18 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import PetsIcon from '@mui/icons-material/Pets';
 import FilmAutocomplete from '../atomi/FilmAutocomplete';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from '../WebSocketContext';
 import { useDialog } from '../../src/DialogContext';
+import logo_adoptie from '../../public/logo_adoptie.png'
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Adaugă Anunț', 'Login-register', 'Logout'];
+
+
+
+const pages = ['Adaugă o postare', 'Postările mele'];
+const settings = ['Profile', 'Login-register', 'Logout'];
 
 const NavBar = ({ onFilterChange }) => {
   const navigate = useNavigate();
@@ -26,11 +30,7 @@ const NavBar = ({ onFilterChange }) => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const { intentionalDisconnect } = useWebSocketContext();
 
-  const [selectedFilter, setSelectedFilter] = React.useState([]);
 
-  const handleFilterChange = (event, newValue) => {
-    setSelectedFilter(newValue);
-  };
 
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -70,6 +70,11 @@ const NavBar = ({ onFilterChange }) => {
     } else if (path === 'Adaugă Anunț') {
       navigate("/add");
     }
+    else if (path === 'Postările mele') {
+      navigate("/intro-page");
+    } else if (path === 'Adaugă o postare') {
+      navigate("/add");
+    }
     else {
       setAnchorElNav(null);
     }
@@ -88,24 +93,25 @@ const NavBar = ({ onFilterChange }) => {
       <AppBar position="sticky">
         <Container maxWidth={false}>
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 0.1 }} />
+            <PetsIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 0.1 }} />
             <Typography
               variant="h6"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              href="http://127.0.0.1:5173/intro-page"
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
-                fontFamily: 'monospace',
+                fontFamily: '"Comic Sans MS", cursive, sans-serif',
                 fontWeight: 700,
-                letterSpacing: '.3rem',
+                letterSpacing: '.1rem', // Ajustat pentru a fi mai puțin spațiat decât monospace.
                 color: 'inherit',
                 textDecoration: 'none',
               }}
             >
-              LOGO
+              Happy Pets
             </Typography>
+
 
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
               <IconButton
@@ -143,7 +149,7 @@ const NavBar = ({ onFilterChange }) => {
                 ))}
               </Menu>
             </Box>
-            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 0.1 }} />
+            <PetsIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 0.1 }} />
             <Typography
               variant="h5"
               noWrap
@@ -166,11 +172,30 @@ const NavBar = ({ onFilterChange }) => {
               {pages.map((page) => (
                 <Button
                   key={page}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
+                  onClick={handleNavigation(page)}
+                  sx={{
+                    my: 2,
+                    color: 'white',
+                    display: 'block',
+                    fontFamily: '"Comic Sans MS", cursive, sans-serif',
+                    fontWeight: 700,
+                    letterSpacing: '.1rem',
+                    textTransform: 'none',
+                    // Aici începe stilizarea pentru hover
+                    '&:hover': {
+                      backgroundColor: 'transparent', // sau orice culoare dorită
+                      borderColor: 'white', // culoarea conturului
+                      borderWidth: 2, // grosimea conturului
+                      borderStyle: 'solid', // stilul conturului
+                      boxShadow: '0 0 10px #fff', // adaugă un mic efect de umbra dacă este necesar
+                    },
+                    // sfârșitul stilizării pentru hover
+                  }}
                 >
                   {page}
                 </Button>
+
+
               ))}
               <Box sx={{
                 flexGrow: 1,
@@ -185,13 +210,20 @@ const NavBar = ({ onFilterChange }) => {
                 marginTop: '20px', // adaugă spațiu în partea de sus
                 marginBottom: '20px', // adaugă spațiu în partea de jos
               }}>
-                <FilmAutocomplete onChange={(event, newValue) => onFilterChange(newValue)} />
+                <FilmAutocomplete onChange={(event, newValue) => {
+                  try {
+                    onFilterChange(newValue)
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }
+                } />
               </Box>
             </Box>
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="avatar" src="../../public/logo_adoptie.png" />
                 </IconButton>
               </Tooltip>
               <Menu
