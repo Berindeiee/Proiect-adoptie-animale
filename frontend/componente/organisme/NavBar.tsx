@@ -20,11 +20,18 @@ import { useDialog } from '../../src/DialogContext';
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Adaugă Anunț', 'Login-register', 'Logout'];
 
-const NavBar = () => {
+const NavBar = ({ onFilterChange }) => {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const { intentionalDisconnect } = useWebSocketContext();
+
+  const [selectedFilter, setSelectedFilter] = React.useState([]);
+
+  const handleFilterChange = (event, newValue) => {
+    setSelectedFilter(newValue);
+  };
+
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -178,7 +185,7 @@ const NavBar = () => {
                 marginTop: '20px', // adaugă spațiu în partea de sus
                 marginBottom: '20px', // adaugă spațiu în partea de jos
               }}>
-                <FilmAutocomplete />
+                <FilmAutocomplete onChange={(event, newValue) => onFilterChange(newValue)} />
               </Box>
             </Box>
             <Box sx={{ flexGrow: 0 }}>
@@ -216,7 +223,7 @@ const NavBar = () => {
       <Box sx={{
         display: { xs: 'flex', md: 'none' }, justifyContent: 'center', backgroundColor: 'white', // schimbați culoarea de fundal
       }}>
-        <FilmAutocomplete />
+        <FilmAutocomplete onChange={(event, newValue) => onFilterChange(newValue)} />
       </Box>
     </>
   );

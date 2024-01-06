@@ -34,6 +34,13 @@ const IntroPage: React.FC = () => {
   const { isConected, sendMessage, onMessageReceived } = useWebSocketContext();
   const [posts, setPosts] = useState<IPost[]>([]); // Starea pentru postări
   const [lastId, setLastId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string[]>([]);
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    // Opțional: Reîncarcă postările filtrate
+  };
+
 
 
   const handleCloseSnackbar = () => {
@@ -122,14 +129,25 @@ const IntroPage: React.FC = () => {
   }, [posts]); // Dependența pentru useEffect este array-ul posts
 
 
+  const filteredPosts = filter.length === 0
+  ? posts
+  : posts.filter(post => {
+    console.log(filter)
+    const postString = `${post.name} ${post.breed} ${post.animalType} ${post.birthDate} ${post.gender} ${post.weight} ${post.description}`;
+    return filter.every(filterWord => postString.toLowerCase().includes(filterWord.toLowerCase()));
+  });
+
+  
+
+
 
   return (
     <div>
-      <NavBar />
+      <NavBar onFilterChange={handleFilterChange} />
       <Container maxWidth="md" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
         <Box my={4}>
           <Grid container spacing={3}>
-            {posts.map((post, index) => (
+            {filteredPosts.map((post, index) => (
               <Grid key={index} xs={12} sm={6} md={4}>
                 <RecipeReviewCard
                   animalName={post.name}

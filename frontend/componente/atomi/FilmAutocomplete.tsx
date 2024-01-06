@@ -10,14 +10,16 @@ const top100Films = [
   // ...alte filme
 ];
 
-const FilmAutocomplete = () => {
+const FilmAutocomplete = ({ onChange }) => {
+
   return (
     <Autocomplete
+      onChange={onChange}
       multiple
       fullWidth
       id="tags-filled"
       options={top100Films.map((option) => option.title)}
-      defaultValue={[top100Films[1].title]}
+      //defaultValue={[top100Films[1].title]}
       freeSolo
       renderTags={(value, getTagProps) =>
         value.map((option, index) => (
@@ -25,12 +27,12 @@ const FilmAutocomplete = () => {
         ))
       }
       renderInput={(params) => (
-        <TextField 
-            {...params}
-            variant="filled"
-            label="Search and filter"
-            placeholder="Search and filter"
-            InputLabelProps={{contentEditable: false}}
+        <TextField
+          {...params}
+          variant="filled"
+          label="Search and filter"
+          placeholder="Search and filter"
+          InputLabelProps={{ contentEditable: false }}
         />
       )}
     />
