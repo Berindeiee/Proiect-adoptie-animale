@@ -16,7 +16,6 @@ import FilmAutocomplete from '../atomi/FilmAutocomplete';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from '../WebSocketContext';
 import { useDialog } from '../../src/DialogContext';
-import logo_adoptie from '../../public/logo_adoptie.png'
 
 
 
@@ -70,8 +69,12 @@ const NavBar = ({ onFilterChange }) => {
     } else if (path === 'Adaugă Anunț') {
       navigate("/add");
     }
-    else if (path === 'Postările mele') {
+    else if (path === 'intro-page') {
       navigate("/intro-page");
+    }
+    else if (path === 'Postările mele') {
+      navigate("/Postarile_mele");
+    
     } else if (path === 'Adaugă o postare') {
       navigate("/add");
     }
@@ -98,7 +101,7 @@ const NavBar = ({ onFilterChange }) => {
               variant="h6"
               noWrap
               component="a"
-              href="http://127.0.0.1:5173/intro-page"
+              onClick={handleNavigation('intro-page')}
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
@@ -154,19 +157,19 @@ const NavBar = ({ onFilterChange }) => {
               variant="h5"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              onClick={handleNavigation('intro-page')}
               sx={{
                 mr: 2,
                 display: { xs: 'flex', md: 'none' },
                 flexGrow: 1,
-                fontFamily: 'monospace',
+                fontFamily: '"Comic Sans MS", cursive, sans-serif',
                 fontWeight: 700,
-                letterSpacing: '.3rem',
+                letterSpacing: '.1rem',
                 color: 'inherit',
                 textDecoration: 'none',
               }}
             >
-              LOGO
+              Happy Pets
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
@@ -255,7 +258,14 @@ const NavBar = ({ onFilterChange }) => {
       <Box sx={{
         display: { xs: 'flex', md: 'none' }, justifyContent: 'center', backgroundColor: 'white', // schimbați culoarea de fundal
       }}>
-        <FilmAutocomplete onChange={(event, newValue) => onFilterChange(newValue)} />
+        <FilmAutocomplete onChange={(event, newValue) => {
+                  try {
+                    onFilterChange(newValue)
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }
+                } />
       </Box>
     </>
   );

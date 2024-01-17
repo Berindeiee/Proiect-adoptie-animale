@@ -26,7 +26,7 @@ interface IPost {
   creator: any;
 }
 
-const IntroPage: React.FC = () => {
+const Postarile_mele: React.FC = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -54,7 +54,7 @@ const IntroPage: React.FC = () => {
     setTimeout(() => {
       const messageData = { lastId: lastId, batchSize: 3 };
       console.log(messageData);
-      sendMessage(JSON.stringify({ type: "GET_POST_BATCH", data: messageData }));
+      sendMessage(JSON.stringify({ type: "GET_MYPOST_BATCH", data: messageData }));
       setSnackbarMessage('Se încarcă postările...');
       setSnackbarSeverity('info');
       setSnackbarOpen(true);
@@ -66,7 +66,7 @@ const IntroPage: React.FC = () => {
     setTimeout(() => {
       const messageData = { lastId: lastId, batchSize: 100 };
       console.log(messageData);
-      sendMessage(JSON.stringify({ type: "GET_POST_BATCH", data: messageData }));
+      sendMessage(JSON.stringify({ type: "GET_MYPOST_BATCH", data: messageData }));
       setSnackbarMessage('Se încarcă postările...');
       setSnackbarSeverity('info');
       setSnackbarOpen(true);
@@ -198,4 +198,4 @@ const IntroPage: React.FC = () => {
   );
 };
 
-export default IntroPage;
+export default Postarile_mele;

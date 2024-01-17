@@ -1,7 +1,7 @@
 import Bun from 'bun';
 import { parse } from 'cookie';
 import { verify } from 'jsonwebtoken';
-import { addPost, getPosts } from '../controller/postController';
+import { addPost, getPosts,getMYPosts } from '../controller/postController';
 import { getUserDetailsById } from '../controller/userController';
 
 let connectionId = 0;
@@ -131,6 +131,42 @@ export function swebsocketServer_sesion() {
                                     }));
                                 }
                                 break;
+                                case 'GET_MYPOST_BATCH':
+                                    // Presupunem că parsedMessage conține un câmp 'lastRetrievedId' și 'batchSize'
+                                    console.log('parsedMessage.data', parsedMessage.data);
+                                    const creatorId = ws.data.userId;
+                                    const mypostsResponse = await getMYPosts(parsedMessage.data.batchSize,creatorId, parsedMessage.data.lastId);
+    
+                                    if (mypostsResponse.posts && mypostsResponse.posts.length > 0) {
+                                        // Pregătește postările cu detalii despre creatorii lor
+                                        const postsWithCreators = await Promise.all(mypostsResponse.posts.map(async (post) => {
+                                            // Presupunând că getUserDetailsById este o funcție exportată și disponibilă în acest context
+                                            const creatorDetails = await getUserDetailsById(post.creatorId.toString());
+                                            return {
+                                                ...post.toObject(), // Convertirea documentului Mongoose într-un obiect JavaScript
+                                                creator: creatorDetails
+                                            };
+                                        }));
+                                        ws.send(JSON.stringify({
+                                            type: 'GET_POST_BATCH_SUCCESS',
+                                            posts: postsWithCreators,
+                                            hasMore: mypostsResponse.hasMore
+                                        }));
+                                    }
+                                    else {
+                                        if (mypostsResponse.posts && mypostsResponse.posts.length === 0) {
+                                            ws.send(JSON.stringify({
+                                                type: 'GET_POST_BATCH_SUCCESS',
+                                                posts: mypostsResponse.posts,
+                                                hasMore: false
+                                            }));
+                                        }else
+                                        ws.send(JSON.stringify({
+                                            type: 'GET_POST_BATCH_ERROR',
+                                            message: mypostsResponse.message
+                                        }));
+                                    }
+                                    break;
                             default:
                                 ws.send(JSON.stringify({ type: 'UNKNOWN_MESSAGE_TYPE' }));
                         }

@@ -95,3 +95,39 @@ export async function getPosts(batchSize: number, lastRetrievedId?: string): Pro
     }
 }
 
+export async function getMYPosts(
+    batchSize: number,
+    creatorId: string, // Adaugă acest parametru pentru ID-ul creatorului
+    lastRetrievedId?: string
+): Promise<{ message: string, posts?: IPost[], hasMore: boolean }> {
+    try {
+        let query: any = { creatorId: creatorId }; // Presupunând că `creator` este câmpul care stochează ID-ul creatorului în documentul postării
+
+        // Dacă un `lastRetrievedId` este furnizat, adaugă o condiție în interogare pentru a lua următoarele postări
+        if (lastRetrievedId) {
+            console.log('lastRetrievedId', lastRetrievedId);
+            query._id = { $gt: lastRetrievedId };
+        }
+
+        // Obține un lot de postări bazat pe `batchSize`, `creatorId` și `lastRetrievedId`
+        // Sortează-le după ID pentru a păstra ordinea cronologică
+        console.log(`Obținere postări pentru creatorId: ${creatorId}...`);
+        console.log(`batchSize: ${batchSize}, lastRetrievedId: ${lastRetrievedId}`);
+        const posts = await Post.find(query).sort({ _id: 1 }).limit(batchSize);
+
+        let hasMore = false;
+        // Verifică dacă există mai multe postări după ultimul ID returnat
+        if (posts.length > 0) {
+            const lastId = posts[posts.length - 1]._id;
+            const countAfterLastId = await Post.countDocuments({ ...query, _id: { $gt: lastId } });
+            hasMore = countAfterLastId > 0;
+        }
+
+        console.log(`Au fost obținute ${posts.length} postări pentru creatorId: ${creatorId}`);
+        return { message: 'Postări obținute cu succes', posts, hasMore };
+    } catch (error) {
+        console.error('Eroare la obținerea postărilor:', error);
+        return { message: 'Eroare la obținerea postărilor', hasMore: false };
+    }
+}
+

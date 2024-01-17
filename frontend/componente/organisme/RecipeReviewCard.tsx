@@ -16,12 +16,16 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
+
+const colorPalette = ['#000000', '#5800FF', '#3357FF', '#E900FF', '#FFC600'];
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
   const { expand, ...other } = props;
@@ -37,11 +41,26 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 export default function RecipeReviewCard(props: any) {
   const [expanded, setExpanded] = React.useState(false);
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    // Logica pentru ștergerea postării
+    handleMenuClose();
+  };
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-
+  
   const { animalName, 
     animalType, 
     animalBreed, 
@@ -50,6 +69,9 @@ export default function RecipeReviewCard(props: any) {
     weight, 
     description,
     images, 
+    contactName,
+    contactEmail,
+    contactPhone
   } = props;
 
   const handleNextImage = () => {
@@ -65,14 +87,26 @@ export default function RecipeReviewCard(props: any) {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            R
+          <Avatar sx={{ bgcolor: randomColor }} aria-label="recipe">
+            {animalName[0]}
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          <>
+            <IconButton 
+              aria-label="settings" 
+              onClick={handleMenuClick}
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleDelete}>Șterge Postarea</MenuItem>
+            </Menu>
+          </>
         }
         title={animalName}
         subheader={animalType}
@@ -114,6 +148,18 @@ export default function RecipeReviewCard(props: any) {
         <Typography variant="body2" color="text.secondary">
           {animalBreed}
         </Typography>
+      </CardContent>
+      <CardContent>
+        <Typography variant="h6">Contact</Typography>
+        {contactName && (
+          <Typography color="text.secondary">Nume: {contactName}</Typography>
+        )}
+        {contactEmail && (
+          <Typography color="text.secondary">Email: {contactEmail}</Typography>
+        )}
+        {contactPhone && (
+          <Typography color="text.secondary">Telefon: {contactPhone}</Typography>
+        )}
       </CardContent>
       <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
