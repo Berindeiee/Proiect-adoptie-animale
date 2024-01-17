@@ -60,15 +60,15 @@ export default function RecipeReviewCard(props: any) {
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  
-  const { animalName, 
-    animalType, 
-    animalBreed, 
-    birthDate, 
-    gender, 
-    weight, 
+
+  const { animalName,
+    animalType,
+    animalBreed,
+    birthDate,
+    gender,
+    weight,
     description,
-    images, 
+    images,
     contactName,
     contactEmail,
     contactPhone
@@ -82,6 +82,14 @@ export default function RecipeReviewCard(props: any) {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Luni sunt de la 0 la 11
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`; // Format: dd/mm/yyyy
+  };
+
 
   return (
     <Card sx={{ maxWidth: 345 }}>
@@ -93,8 +101,8 @@ export default function RecipeReviewCard(props: any) {
         }
         action={
           <>
-            <IconButton 
-              aria-label="settings" 
+            <IconButton
+              aria-label="settings"
               onClick={handleMenuClick}
             >
               <MoreVertIcon />
@@ -111,7 +119,7 @@ export default function RecipeReviewCard(props: any) {
         title={animalName}
         subheader={animalType}
       />
-       <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }}>
         <CardMedia
           component="img"
           height="194"
@@ -129,7 +137,7 @@ export default function RecipeReviewCard(props: any) {
             transform: 'translateY(-50%)'
           }}
         >
-           <ArrowBackIosIcon /> {/* Iconiță pentru imaginea anterioară */}
+          <ArrowBackIosIcon /> {/* Iconiță pentru imaginea anterioară */}
         </IconButton>
         <IconButton
           aria-label="next image"
@@ -141,7 +149,7 @@ export default function RecipeReviewCard(props: any) {
             transform: 'translateY(-50%)'
           }}
         >
-           <ArrowForwardIosIcon /> {/* Iconiță pentru următoarea imagine */}
+          <ArrowForwardIosIcon /> {/* Iconiță pentru următoarea imagine */}
         </IconButton>
       </div>
       <CardContent>
@@ -178,29 +186,29 @@ export default function RecipeReviewCard(props: any) {
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-      <CardContent>
-        <Typography variant="h5" component="div">
-          {animalName}
-        </Typography>
-        <Typography color="text.secondary">
-          Tip de Animal: {animalType}
-        </Typography>
-        <Typography color="text.secondary">
-          Rasa Animalului: {animalBreed}
-        </Typography>
-        <Typography color="text.secondary">
-          Data nașterii: {birthDate}
-        </Typography>
-        <Typography color="text.secondary">
-          Gen: {gender === 'female' ? 'Femelă' : 'Mascul'}
-        </Typography>
-        <Typography color="text.secondary">
-          Greutate: {weight}
-        </Typography>
-        <Typography variant="body2">
-          Descriere: {description}
-        </Typography>
-      </CardContent>
+        <CardContent>
+          <Typography variant="h5" component="div">
+            {animalName}
+          </Typography>
+          <Typography color="text.secondary">
+            Tip de Animal: {animalType}
+          </Typography>
+          <Typography color="text.secondary">
+            Rasa Animalului: {animalBreed}
+          </Typography>
+          <Typography color="text.secondary">
+            Data nașterii: {formatDate(birthDate)}
+          </Typography>
+          <Typography color="text.secondary">
+            Gen: {gender === 'female' ? 'Femelă' : 'Mascul'}
+          </Typography>
+          <Typography color="text.secondary">
+            Greutate: {weight}
+          </Typography>
+          <Typography variant="body2">
+            Descriere: {description}
+          </Typography>
+        </CardContent>
       </Collapse>
     </Card>
   );

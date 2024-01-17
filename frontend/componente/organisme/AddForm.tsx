@@ -67,7 +67,7 @@ const AddForm = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('error');
 
-  const [data_animal, setdata_animal] = React.useState<Dayjs | null>(dayjs('2022-04-17'));
+  const [data_animal, setdata_animal] = React.useState<Dayjs | null>(dayjs());
   const [gen, setGen] = useState('');
   const [greutate, setGreutate] = useState('');
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
