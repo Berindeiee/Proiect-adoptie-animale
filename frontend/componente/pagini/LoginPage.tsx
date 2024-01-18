@@ -23,6 +23,13 @@ const LoginPage: React.FC = () => {
   const [usernameAvailability, setUsernameAvailability] = useState<boolean | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const isDisconnectIntentionalRef = useRef(false);
+  // Crează o stare pentru a urmări dacă checkbox-ul este bifat
+  const [isChecked, setIsChecked] = useState(true);
+
+  // Funcție pentru a schimba starea checkbox-ului
+  const toggleCheckbox = () => {
+    setIsChecked(!isChecked);
+  };
 
 
   const [loginEmail, setLoginEmail] = useState('');
@@ -81,6 +88,7 @@ const LoginPage: React.FC = () => {
             setSnackbarMessage('Înregistrare realizată cu succes!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            setIsChecked(false);
             break;
           case 'REGISTRATION_ERROR':
             // Tratează eroarea de înregistrare
@@ -138,7 +146,7 @@ const LoginPage: React.FC = () => {
       }
     };
   }, []);
-  
+
 
 
   const handleLoginEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,16 +275,22 @@ const LoginPage: React.FC = () => {
           <div className="row full-height justify-content-center">
             <div className="col-12 text-center align-self-center py-5">
               <div className="section pb-5 pt-5 pt-sm-2 text-center">
-                <h6 className="mb-0 pb-3"><span>Log In </span><span>Sign Up</span></h6>
-                <input className="checkbox" type="checkbox" id="reg-log" name="reg-log" defaultChecked />
-                <label htmlFor="reg-log"></label>
+                <h6 className="mb-0 pb-3"><span>Conectare</span><span>Înregistrare</span></h6>
+                <input
+                  className="checkbox"
+                  type="checkbox"
+                  id="reg-log"
+                  name="reg-log"
+                  checked={isChecked} // Controlat de starea React
+                  onChange={toggleCheckbox} // Schimbă starea la comutare
+                />                <label htmlFor="reg-log"></label>
                 <div className="card-3d-wrap mx-auto">
                   <div className="card-3d-wrapper">
                     {/* Log In Form */}
                     <div className="card-front">
                       <div className="center-wrap">
                         <div className="section text-center">
-                          <h4 className="mb-4 pb-3">Log In</h4>
+                          <h4 className="mb-4 pb-3">Conectare</h4>
                           <div className="form-group">
                             <input type="email"
                               className="form-style"
@@ -300,9 +314,9 @@ const LoginPage: React.FC = () => {
                               className={`show-password-icon ${showLoginPassword ? "uil-eye-slash" : "uil-eye"}`}
                             ></i>
                           </div>
-                          <button onClick={handleLoginSubmit} className="btn mt-4">Login</button>
+                          <button onClick={handleLoginSubmit} className="btn mt-4">Conectează-te</button>
                           <p className="mb-0 mt-4 text-center">
-                            <a href="h" className="link">Forgot your password?</a>
+                            <a href="h" className="link">Ai uitat parola?</a>
                           </p>
                         </div>
                       </div>
@@ -312,7 +326,7 @@ const LoginPage: React.FC = () => {
                     <div className="card-back">
                       <div className="center-wrap">
                         <div className="section text-center">
-                          <h4 className="mb-3 pb-3">Sign Up</h4>
+                          <h4 className="mb-3 pb-3">Înregistrare</h4>
                           <div className="form-group">
                             <input
                               type="text"
@@ -365,7 +379,7 @@ const LoginPage: React.FC = () => {
                             ></i>
 
                           </div>
-                          <button onClick={handleSubmit} className="btn mt-4">Register</button>
+                          <button onClick={handleSubmit} className="btn mt-4">Înregistrează-te</button>
                         </div>
                       </div>
                     </div>

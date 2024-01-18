@@ -55,8 +55,8 @@ const FilmAutocomplete = ({ onChange }) => {
         <TextField
           {...params}
           variant="filled"
-          label="Search and filter"
-          placeholder="Search and filter"
+          label="Caută și filtrează"
+          placeholder="Caută și filtrează"
           InputLabelProps={{ contentEditable: false }}
         />
       )}
